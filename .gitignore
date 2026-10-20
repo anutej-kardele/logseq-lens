@@ -1,0 +1,25 @@
+# Private data — never commit real notes or exports
+local-data/
+*.edn
+*.sqlite
+
+# Build outputs
+*.apk
+*.aab
+build/
+.gradle/
+.kotlin/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Machine-specific
+local.properties
+.idea/
+*.iml
+.DS_Store
+
+# Signing material
+*.jks
+*.keystore
+keystore.properties
