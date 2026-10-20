@@ -74,8 +74,9 @@ Run the tool again whenever you want the app to see new notes.
 - **Sync:** tap the sync icon on Home. The line under the graph name shows when it last synced.
 - **Switch graphs:** tap the graph name on Home to pick another export in the same folder (for example
   `demo.json`). Switching replaces the notes on the phone; flashcard progress comes back when you switch back.
-- **Scratchpad:** tap any line to type. Type `[] ` at the start of a line for a checkbox. Add the widget from the
-  Scratchpad's ⋮ menu → *Add widget to home screen*.
+- **Scratchpad:** tap any line to type. Type `[] ` at the start of a line for a checkbox. To copy several lines use
+  the copy icon while typing, or ⋮ → *Copy all* / *Select text*. Add the widget from ⋮ → *Add widget to home
+  screen*.
 - **Flashcards:** *Cards* tab → pick a deck → *Show answer* → *Know* / *Again*. Progress stays on your phone.
 
 <p align="center">

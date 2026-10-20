@@ -1,5 +1,14 @@
 package com.anutej.logseqpocket.ui.scratchpad
 
+import android.content.ClipData
+import android.os.Build
+import android.widget.Toast
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -130,6 +139,11 @@ fun PadEditToolbar(focusedLine: Long?, vm: ScratchpadViewModel, modifier: Modifi
                 tint = MaterialTheme.colorScheme.primary,
             )
         }
+        // Each line is its own text field, so system "Select all" stops at the line; this copies the whole note.
+        val copyNote = rememberCopyNote()
+        IconButton(onClick = { vm.doc.value?.let(copyNote) }, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Outlined.ContentCopy, "Copy the whole note", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+        }
         Spacer(Modifier.weight(1f))
         IconButton(onClick = { focusManager.clearFocus() }, modifier = Modifier.size(36.dp)) {
             Icon(Icons.Outlined.KeyboardHide, "Hide keyboard", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -228,5 +242,24 @@ private fun PadLineRow(
                     }
                 },
         )
+    }
+}
+
+/** Copies the whole Scratchpad as plain text ("- [ ]" / "- [x]" for checkboxes) to the clipboard. */
+@Composable
+fun rememberCopyNote(): (PadDoc) -> Unit {
+    val clipboard = LocalClipboard.current
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    return remember(clipboard, context, scope) {
+        { doc ->
+            scope.launch {
+                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("Scratchpad", PadEditor.toPlainText(doc))))
+                // Android 13+ shows its own "copied" confirmation.
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    Toast.makeText(context, "Scratchpad copied", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 }

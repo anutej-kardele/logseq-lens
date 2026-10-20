@@ -13,6 +13,12 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.TextFields
+import androidx.compose.material3.TextButton
+import androidx.compose.foundation.text.selection.SelectionContainer
+import com.anutej.logseqpocket.ui.theme.PocketTheme
+import com.anutej.logseqpocket.ui.theme.noteBodyStyle
 import androidx.compose.material.icons.outlined.Widgets
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -100,6 +106,8 @@ fun ScratchpadScreen(startNewItem: Boolean, onBack: () -> Unit) {
     var menu by remember { mutableStateOf(false) }
     var focusedLine by remember { mutableStateOf<Long?>(null) }
     var newItemHandled by rememberSaveable { mutableStateOf(false) }
+    var selectMode by rememberSaveable { mutableStateOf(false) }
+    val copyNote = rememberCopyNote()
 
     LaunchedEffect(doc != null) {
         if (doc != null && startNewItem && !newItemHandled) { newItemHandled = true; vm.appendCheckbox() }
@@ -108,11 +116,29 @@ fun ScratchpadScreen(startNewItem: Boolean, onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Scratchpad") },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Back") } },
+                title = { Text(if (selectMode) "Select text" else "Scratchpad") },
+                navigationIcon = {
+                    IconButton(onClick = { if (selectMode) selectMode = false else onBack() }) {
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, "Back")
+                    }
+                },
                 actions = {
+                    if (selectMode) {
+                        TextButton(onClick = { selectMode = false }) { Text("Done") }
+                        return@TopAppBar
+                    }
                     IconButton(onClick = { menu = true }) { Icon(Icons.Outlined.MoreVert, "More") }
                     DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                        DropdownMenuItem(
+                            text = { Text("Copy all") },
+                            leadingIcon = { Icon(Icons.Outlined.ContentCopy, null) },
+                            onClick = { menu = false; doc?.let(copyNote) },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Select text") },
+                            leadingIcon = { Icon(Icons.Outlined.TextFields, null) },
+                            onClick = { menu = false; selectMode = true },
+                        )
                         DropdownMenuItem(
                             text = { Text("Clear checked items") },
                             leadingIcon = { Icon(Icons.Outlined.DeleteSweep, null) },
@@ -155,6 +181,21 @@ fun ScratchpadScreen(startNewItem: Boolean, onBack: () -> Unit) {
     ) { padding ->
         val d = doc
         if (d == null) { LoadingState(Modifier.padding(padding)); return@Scaffold }
+        if (selectMode) {
+            // One block of text, so selection can span lines and "Select all" covers the whole note.
+            Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 8.dp)) {
+                Text(
+                    "Long-press to select across lines, then Copy. Checkboxes appear as - [ ] / - [x].",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+                SelectionContainer {
+                    Text(PadEditor.toPlainText(d), style = noteBodyStyle(PocketTheme.readingSize).copy(color = MaterialTheme.colorScheme.onSurface))
+                }
+            }
+            return@Scaffold
+        }
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
             PadNoteEditor(
                 doc = d,
