@@ -109,7 +109,7 @@ fun buildNoteAnnotated(inlines: List<Inline>, ctx: RenderContext, colors: Pocket
                 is Inline.Italic -> withStyle(SpanStyle(fontStyle = FontStyle.Italic)) { walk(n.children) }
                 is Inline.Strike -> withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) { walk(n.children) }
                 is Inline.Highlight -> withStyle(SpanStyle(background = colors.highlight)) { walk(n.children) }
-                is Inline.Code -> withStyle(codeStyle) { append(' '); append(n.text); append(' ') }
+                is Inline.Code -> withStyle(codeStyle) { append(n.text) }
                 is Inline.Math -> withStyle(SpanStyle(fontFamily = CodeFontFamily, fontStyle = FontStyle.Italic, color = colors.codeText)) {
                     append(n.text)
                 }
@@ -122,7 +122,7 @@ fun buildNoteAnnotated(inlines: List<Inline>, ctx: RenderContext, colors: Pocket
                 is Inline.TagRef -> {
                     val t = ctx.refs.tag(n.target)
                     val name = if (isUuid(n.target)) t.label else n.target
-                    target(t, " #$name ", if (t is RefTarget.Missing) missingStyle else tagStyle)
+                    target(t, "#$name", if (t is RefTarget.Missing) missingStyle else tagStyle)
                 }
                 is Inline.BlockRef -> {
                     val b = ctx.blockRefs[n.uuid]
