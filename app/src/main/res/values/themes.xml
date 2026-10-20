@@ -5,4 +5,10 @@
     </style>
     <color name="window_background">#FAF8F4</color>
     <color name="ic_launcher_background">#002B36</color>
+    <style name="Theme.LogseqPocket.QuickAdd" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>

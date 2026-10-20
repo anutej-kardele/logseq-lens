@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.OpenInFull
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.EditNote
@@ -26,10 +26,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 
-/** Home preview of the Scratchpad: the first few lines, tap to open the editor. */
+/**
+ * Home preview of the Scratchpad: the latest lines plus an inline field to add more without opening
+ * the editor. Tapping the card itself opens the full note.
+ */
 @Composable
-fun ScratchpadCard(doc: PadDoc?, onOpen: () -> Unit, modifier: Modifier = Modifier) {
-    val preview = doc?.lines.orEmpty().filter { it.text.isNotBlank() }.take(4)
+fun ScratchpadCard(
+    doc: PadDoc?,
+    onOpen: () -> Unit,
+    onAdd: (text: String, checkbox: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val preview = doc?.lines.orEmpty().filter { it.text.isNotBlank() }.takeLast(4)
     Surface(
         modifier.fillMaxWidth().clickable(onClick = onOpen),
         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -45,7 +53,7 @@ fun ScratchpadCard(doc: PadDoc?, onOpen: () -> Unit, modifier: Modifier = Modifi
                     Text("$it open", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(8.dp))
                 }
-                Icon(Icons.AutoMirrored.Outlined.ArrowForward, "Open Scratchpad", Modifier.size(20.dp))
+                Icon(Icons.Outlined.OpenInFull, "Open full Scratchpad", Modifier.size(18.dp))
             }
             if (preview.isEmpty()) {
                 Text(
@@ -75,6 +83,7 @@ fun ScratchpadCard(doc: PadDoc?, onOpen: () -> Unit, modifier: Modifier = Modifi
                     )
                 }
             }
+            QuickAddField(onAdd = onAdd)
         }
     }
 }

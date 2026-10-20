@@ -9,7 +9,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
@@ -36,6 +39,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.layout.width
 import androidx.glance.material3.ColorProviders
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -43,6 +47,8 @@ import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import com.anutej.logseqpocket.LogseqPocketApp
 import com.anutej.logseqpocket.MainActivity
+import com.anutej.logseqpocket.R
+import com.anutej.logseqpocket.ui.scratchpad.QuickAddActivity
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 import com.anutej.logseqpocket.domain.scratchpad.PadEditor
 import com.anutej.logseqpocket.domain.scratchpad.PadLine
@@ -53,8 +59,9 @@ private val widgetColors = ColorProviders(light = LightScheme, dark = DarkScheme
 private val LineIdKey = ActionParameters.Key<Long>("lineId")
 
 /**
- * Home-screen view of the Scratchpad. Checkboxes can be ticked right here; typing happens in the app
- * (Android widgets can't host text fields), so tapping text or "+" opens the editor.
+ * Home-screen view of the Scratchpad. Checkboxes can be ticked right here. Android widgets can't host
+ * text fields, so "Type something…" opens a small quick-add sheet over the home screen; the expand
+ * icon (or tapping a text line) opens the full editor.
  */
 class ScratchpadWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
@@ -109,23 +116,48 @@ private fun WidgetBody(context: Context, doc: PadDoc) {
                     )
                 }
             }
+            // Expand glyph = "open the whole note in the app".
             Box(
-                GlanceModifier.size(36.dp).cornerRadius(18.dp).background(GlanceTheme.colors.primaryContainer)
-                    .clickable(actionStartActivity(scratchpadIntent(context, newItem = true))),
+                GlanceModifier.size(36.dp).cornerRadius(18.dp).background(GlanceTheme.colors.primaryContainer).clickable(open),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("+", style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 20.sp, fontWeight = FontWeight.Bold))
+                Image(
+                    ImageProvider(R.drawable.ic_widget_open_full),
+                    contentDescription = "Open full note",
+                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimaryContainer),
+                    modifier = GlanceModifier.size(18.dp),
+                )
             }
         }
         if (lines.isEmpty()) {
-            Box(GlanceModifier.fillMaxSize().clickable(open), contentAlignment = Alignment.Center) {
-                Text("Tap to jot something down", style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 13.sp))
-            }
+            Spacer(GlanceModifier.defaultWeight())
         } else {
-            LazyColumn(GlanceModifier.fillMaxSize()) {
+            LazyColumn(GlanceModifier.defaultWeight().fillMaxWidth()) {
                 items(lines, itemId = { it.id }) { line -> WidgetLine(line, open) }
             }
         }
+        TypeHereRow(context)
+    }
+}
+
+/** Looks like an input; opens the quick-add sheet over the home screen (widgets can't host text fields). */
+@Composable
+private fun TypeHereRow(context: Context) {
+    Row(
+        GlanceModifier.fillMaxWidth().padding(top = 6.dp).cornerRadius(14.dp)
+            .background(GlanceTheme.colors.surfaceVariant)
+            .clickable(actionStartActivity(QuickAddActivity.intent(context)))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            ImageProvider(R.drawable.ic_widget_edit),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurfaceVariant),
+            modifier = GlanceModifier.size(16.dp),
+        )
+        Spacer(GlanceModifier.width(8.dp))
+        Text("Type something…", style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 14.sp))
     }
 }
 

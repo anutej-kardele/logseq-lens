@@ -106,6 +106,21 @@ object PadEditor {
         return Edit(doc.copy(lines = doc.lines + line, nextId = doc.nextId + 1), Focus(line.id, 0))
     }
 
+    /**
+     * Adds typed text at the end without opening the editor (quick-add popup, Home card). Each line
+     * of [text] becomes its own line; a trailing empty text line is reused instead of left behind.
+     */
+    fun appendText(doc: PadDoc, text: String, checkbox: Boolean): PadDoc {
+        val parts = text.replace("\r\n", "\n").split('\n').map { it.trimEnd() }.filter { it.isNotBlank() }
+        if (parts.isEmpty()) return doc
+        var lines = doc.lines
+        val last = lines.lastOrNull()
+        if (last != null && last.text.isEmpty()) lines = lines.dropLast(1)
+        var nextId = doc.nextId
+        val added = parts.map { PadLine(nextId++, it, checkbox = checkbox) }
+        return doc.copy(lines = lines + added, nextId = nextId)
+    }
+
     /** Removes ticked items; always leaves at least one line. */
     fun clearChecked(doc: PadDoc): PadDoc {
         val kept = doc.lines.filterNot { it.checkbox && it.checked }

@@ -1,9 +1,11 @@
 package com.anutej.logseqpocket
 
 import android.app.Application
+import android.content.Intent
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import com.anutej.logseqpocket.ui.scratchpad.QuickAddActivity
 import com.anutej.logseqpocket.widget.scratchpadIntent
 
 class LogseqPocketApp : Application() {
@@ -29,7 +31,7 @@ class LogseqPocketApp : Application() {
                 .setShortLabel("New to-do")
                 .setLongLabel("New Scratchpad item")
                 .setIcon(icon)
-                .setIntent(scratchpadIntent(this, newItem = true))
+                .setIntent(QuickAddActivity.intent(this, checkbox = true).setAction(Intent.ACTION_VIEW))
                 .build(),
         )
         runCatching { ShortcutManagerCompat.setDynamicShortcuts(this, shortcuts) }

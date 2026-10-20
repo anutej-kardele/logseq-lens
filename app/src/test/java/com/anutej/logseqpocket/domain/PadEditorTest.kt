@@ -101,3 +101,30 @@ class PadEditorTest {
         assertEquals(d, PadEditor.backspaceAtStart(d, 99).doc)
     }
 }
+
+class PadEditorAppendTest {
+    private fun doc(vararg lines: PadLine) = PadDoc(lines = lines.toList(), nextId = 100)
+
+    @Test fun appendsCheckboxItemsAndReusesTrailingEmptyLine() {
+        val d = PadEditor.appendText(doc(PadLine(1, "Ideas"), PadLine(2, "")), "milk\n\n eggs ", checkbox = true)
+        assertEquals(listOf("Ideas", "milk", " eggs"), d.lines.map { it.text })
+        assertEquals(listOf(false, true, true), d.lines.map { it.checkbox })
+        assertEquals(102, d.nextId)
+    }
+
+    @Test fun appendsPlainTextAfterExistingContent() {
+        val d = PadEditor.appendText(doc(PadLine(1, "a", checkbox = true)), "a thought", checkbox = false)
+        assertEquals(PadLine(100, "a thought"), d.lines.last())
+        assertEquals(2, d.lines.size)
+    }
+
+    @Test fun blankInputChangesNothing() {
+        val d = doc(PadLine(1, "a"))
+        assertEquals(d, PadEditor.appendText(d, "  \n ", checkbox = true))
+    }
+
+    @Test fun appendingToAFreshNoteReplacesTheEmptyStarterLine() {
+        val d = PadEditor.appendText(PadDoc(), "first", checkbox = false)
+        assertEquals(listOf("first"), d.lines.map { it.text })
+    }
+}

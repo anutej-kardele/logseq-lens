@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +70,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import com.anutej.logseqpocket.domain.scratchpad.PadEditor
 
 data class HomeUi(
     val loading: Boolean = true,
@@ -112,6 +115,7 @@ fun HomeScreen(
     val pick = { picker.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }
     val hasToken by c.tokens.hasToken.collectAsStateWithLifecycle(false)
     val pad by c.scratchpad.doc.collectAsStateWithLifecycle(null)
+    val scope = rememberCoroutineScope()
     var tokenDialog by remember { mutableStateOf(false) }
     val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else tokenDialog = true }
     if (tokenDialog) GitHubTokenDialog(onDismiss = { tokenDialog = false }, onSaved = { tokenDialog = false; c.importer.syncGitHub() })
@@ -137,7 +141,11 @@ fun HomeScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item { ScratchpadCard(pad, onScratchpad) }
+            item {
+                ScratchpadCard(pad, onScratchpad, onAdd = { text, checkbox ->
+                    scope.launch { c.scratchpad.update { PadEditor.appendText(it, text, checkbox) } }
+                })
+            }
             if (ui.importState !is ImportState.Idle) {
                 item { ImportStatusBanner(ui.importState, vm::dismissImport) }
             }
