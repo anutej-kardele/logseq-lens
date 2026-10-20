@@ -4,6 +4,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -64,6 +65,7 @@ import com.anutej.logseqpocket.ui.components.SectionHeader
 import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
 import com.anutej.logseqpocket.ui.sync.GitHubTokenDialog
+import com.anutej.logseqpocket.ui.scratchpad.HOME_CARD_FRACTION
 import com.anutej.logseqpocket.ui.scratchpad.ScratchpadCard
 import com.anutej.logseqpocket.ui.scratchpad.ScratchpadViewModel
 import com.anutej.logseqpocket.ui.util.Format
@@ -131,6 +133,9 @@ fun HomeScreen(
         },
     ) { padding ->
         if (ui.loading) { LoadingState(Modifier.padding(padding)); return@Scaffold }
+        // The Scratchpad card may use ~35% of the content area (between top bar and bottom tabs).
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+        val cardMax = (maxHeight - padding.calculateTopPadding() - padding.calculateBottomPadding()) * HOME_CARD_FRACTION
         LazyColumn(
             Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(
@@ -140,7 +145,7 @@ fun HomeScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item(key = "scratchpad") { ScratchpadCard(pad, padVm, onScratchpad) }
+            item(key = "scratchpad") { ScratchpadCard(pad, padVm, onScratchpad, maxHeight = cardMax) }
             if (ui.importState !is ImportState.Idle) {
                 item { ImportStatusBanner(ui.importState, vm::dismissImport) }
             }
@@ -181,6 +186,7 @@ fun HomeScreen(
                     )
                 }
             }
+        }
         }
     }
 }

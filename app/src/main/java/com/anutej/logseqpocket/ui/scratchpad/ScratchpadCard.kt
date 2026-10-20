@@ -26,22 +26,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 
-/** Share of the screen height the Scratchpad may use on Home and in the floating note. */
-const val MAX_SCREEN_FRACTION = 0.4f
+/** Share of Home's content area (between top bar and bottom tabs) the Scratchpad card may use. */
+const val HOME_CARD_FRACTION = 0.35f
+
+/** Share of the screen height the floating note (opened from the widget) may use, keyboard excluded. */
+const val FLOATING_FRACTION = 0.33f
+
+/** Keeps scrolling that reaches the end of the note inside the card instead of moving the page behind it. */
+private val ConsumeLeftoverScroll = object : NestedScrollConnection {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset = available
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
+}
 
 /**
  * The Scratchpad right on Home: tap a checkbox to tick it, tap anywhere else to type in place
  * (Enter for a new line, "[] " for a checkbox). The expand icon opens the full note.
  */
 @Composable
-fun ScratchpadCard(doc: PadDoc?, vm: ScratchpadViewModel, onOpenFull: () -> Unit, modifier: Modifier = Modifier) {
+fun ScratchpadCard(
+    doc: PadDoc?,
+    vm: ScratchpadViewModel,
+    onOpenFull: () -> Unit,
+    maxHeight: Dp,
+    modifier: Modifier = Modifier,
+) {
     var focusedLine by remember { mutableStateOf<Long?>(null) }
-    // Never more than ~40% of the screen; the note scrolls inside the card.
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * MAX_SCREEN_FRACTION).dp
     Surface(
         modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.secondaryContainer,
@@ -65,8 +83,8 @@ fun ScratchpadCard(doc: PadDoc?, vm: ScratchpadViewModel, onOpenFull: () -> Unit
                 onFocusedLine = { focusedLine = it },
                 textStyle = MaterialTheme.typography.bodyLarge,
                 tailHeight = 20.dp,
-                placeholder = "Tap to jot something down",
-                modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                placeholder = "Tap to write · [] for a checkbox",
+                modifier = Modifier.weight(1f, fill = false).nestedScroll(ConsumeLeftoverScroll).verticalScroll(rememberScrollState()),
             )
             if (focusedLine != null) {
                 HorizontalDivider(Modifier.padding(horizontal = 12.dp))

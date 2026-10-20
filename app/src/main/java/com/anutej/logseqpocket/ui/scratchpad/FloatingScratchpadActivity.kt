@@ -94,8 +94,8 @@ class FloatingScratchpadActivity : ComponentActivity() {
 private fun FloatingNote(vm: ScratchpadViewModel, onOpenFull: () -> Unit, onDismiss: () -> Unit) {
     val doc by vm.doc.collectAsStateWithLifecycle()
     var focusedLine by remember { mutableStateOf<Long?>(null) }
-    // Whole sheet ≤ ~40% of the screen so the keyboard and the home screen stay visible.
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * MAX_SCREEN_FRACTION).dp
+    // Whole sheet ≤ ~33% of the screen; it sits right above the keyboard (imePadding).
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * FLOATING_FRACTION).dp
     Box(
         Modifier
             .fillMaxSize()
@@ -122,7 +122,7 @@ private fun FloatingNote(vm: ScratchpadViewModel, onOpenFull: () -> Unit, onDism
                     vm = vm,
                     onFocusedLine = { focusedLine = it },
                     tailHeight = 24.dp,
-                    placeholder = "Thoughts, to-dos…",
+                    placeholder = "Thoughts, to-dos… ([] for a checkbox)",
                     modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
                 )
                 HorizontalDivider()

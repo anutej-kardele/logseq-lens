@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -109,23 +110,23 @@ fun PadNoteEditor(
     }
 }
 
-/** Slim strip shown only while typing: make the current line a checkbox, or put the keyboard away. */
+/** Compact strip shown only while typing: make the current line a checkbox, or put the keyboard away. */
 @Composable
 fun PadEditToolbar(focusedLine: Long?, vm: ScratchpadViewModel, modifier: Modifier = Modifier) {
     if (focusedLine == null) return
     val focusManager = LocalFocusManager.current
-    Row(modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = { vm.toggleCheckbox(focusedLine) }) {
-            Icon(Icons.Outlined.CheckBox, "Toggle checkbox on this line", tint = MaterialTheme.colorScheme.primary)
+    Row(modifier.fillMaxWidth().height(36.dp), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { vm.toggleCheckbox(focusedLine) }, modifier = Modifier.size(36.dp)) {
+            Icon(
+                Icons.Outlined.CheckBox,
+                "Toggle checkbox on this line (or type [] )",
+                Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
-        Text(
-            "Tip: type [] for a checkbox",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.weight(1f),
-        )
-        IconButton(onClick = { focusManager.clearFocus() }) {
-            Icon(Icons.Outlined.KeyboardHide, "Hide keyboard", Modifier.size(20.dp))
+        Spacer(Modifier.weight(1f))
+        IconButton(onClick = { focusManager.clearFocus() }, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Outlined.KeyboardHide, "Hide keyboard", Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
