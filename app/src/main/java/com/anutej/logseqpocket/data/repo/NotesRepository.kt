@@ -53,6 +53,9 @@ class NotesRepository(private val db: PocketDatabase) {
 
     suspend fun pageOfBlock(uuid: String): String? = dao.pageOfBlock(uuid)
 
+    suspend fun tagsForBlocks(uuids: Collection<String>): Map<String, List<BlockTagRow>> =
+        if (uuids.isEmpty()) emptyMap() else uuids.chunked(500).flatMap { dao.tagsForBlocks(it) }.groupBy { it.blockUuid }
+
     /** Descendants of [block] in outline order. */
     suspend fun subtree(block: BlockEntity): List<BlockEntity> =
         dao.blocksAfter(block.pageUuid, block.preorder).takeWhile { it.depth > block.depth }

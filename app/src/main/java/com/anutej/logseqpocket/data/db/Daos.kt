@@ -129,6 +129,12 @@ interface NotesDao {
     @Query("SELECT * FROM blocks WHERE uuid IN (:uuids)")
     suspend fun blocksByUuid(uuids: List<String>): List<BlockEntity>
 
+    @Query(
+        """SELECT bt.blockUuid, bt.tagKey, t.name, t.pageUuid, bt.position FROM block_tags bt
+           JOIN tags t ON t.tagKey = bt.tagKey WHERE bt.blockUuid IN (:uuids) ORDER BY bt.position"""
+    )
+    suspend fun tagsForBlocks(uuids: List<String>): List<BlockTagRow>
+
     @Query("SELECT pageUuid FROM blocks WHERE uuid = :uuid")
     suspend fun pageOfBlock(uuid: String): String?
 
@@ -209,8 +215,10 @@ data class CardRow(
     val content: String,
     val propertiesJson: String,
     val preorder: Int,
+    val depth: Int,
     val childCount: Int,
     val answerBlockCount: Int,
+    val answerHash: String,
     val sortIndex: Int,
 )
 
@@ -222,7 +230,7 @@ data class ProgressSummary(val reviewed: Int, val known: Int, val again: Int)
 interface StudyDao {
     @Query(
         """SELECT c.cardKey, c.blockUuid, c.pageUuid, p.title AS pageTitle, p.kind AS pageKind, p.journalDay,
-           b.content, b.propertiesJson, b.preorder, b.childCount, c.answerBlockCount, c.sortIndex
+           b.content, b.propertiesJson, b.preorder, b.depth, b.childCount, c.answerBlockCount, c.answerHash, c.sortIndex
            FROM cards c JOIN blocks b ON b.uuid = c.blockUuid JOIN pages p ON p.uuid = c.pageUuid
            ORDER BY c.sortIndex"""
     )

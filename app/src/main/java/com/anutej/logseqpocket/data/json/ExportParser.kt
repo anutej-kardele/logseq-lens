@@ -24,9 +24,9 @@ class ExportParser(private val maxBytes: Long = DEFAULT_MAX_BYTES) {
         } catch (e: LimitExceeded) {
             throw ImportException(ImportError.TooLarge(e.bytes, maxBytes))
         } catch (e: SerializationException) {
-            throw ImportException(ImportError.MalformedJson(e.message?.lineSequence()?.firstOrNull()?.take(160) ?: "decode error"))
+            throw ImportException(ImportError.MalformedJson(describe(e)))
         } catch (e: IllegalArgumentException) {
-            throw ImportException(ImportError.MalformedJson(e.message?.take(160) ?: "decode error"))
+            throw ImportException(ImportError.MalformedJson(describe(e)))
         } catch (e: StackOverflowError) {
             throw ImportException(ImportError.Invalid("block nesting is too deep"))
         } catch (e: IOException) {
@@ -34,6 +34,18 @@ class ExportParser(private val maxBytes: Long = DEFAULT_MAX_BYTES) {
         }
         val hex = digest.digest().joinToString("") { "%02x".format(it) }
         return ParsedExport(dto, hex, counting.count)
+    }
+
+    /** A short reason that never echoes file content (parser messages can quote the input). */
+    private fun describe(e: Exception): String {
+        val msg = e.message.orEmpty()
+        val offset = Regex("offset (\\d+)").find(msg)?.groupValues?.get(1)
+        return when {
+            msg.contains("too nested") -> "nesting is too deep"
+            msg.contains("EOF", ignoreCase = true) || msg.contains("end of the input", ignoreCase = true) -> "file ends unexpectedly"
+            offset != null -> "syntax error near byte $offset"
+            else -> "unexpected structure"
+        }
     }
 
     private class LimitExceeded(val bytes: Long) : IOException("limit exceeded")

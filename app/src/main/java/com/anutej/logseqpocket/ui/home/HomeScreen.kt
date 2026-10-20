@@ -39,6 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -59,6 +62,7 @@ import com.anutej.logseqpocket.ui.components.LoadingState
 import com.anutej.logseqpocket.ui.components.SectionHeader
 import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
+import com.anutej.logseqpocket.ui.sync.GitHubTokenDialog
 import com.anutej.logseqpocket.ui.util.Format
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -96,7 +100,6 @@ fun HomeScreen(
     onOpenPage: (String) -> Unit,
     onShortcut: (Shortcut) -> Unit,
     onSettings: () -> Unit,
-    onSync: (() -> Unit)?,
 ) {
     val c = appContainer()
     val vm = pocketViewModel { HomeViewModel(it) }
@@ -105,13 +108,17 @@ fun HomeScreen(
         if (uri != null) c.importer.importUri(uri)
     }
     val pick = { picker.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }
+    val hasToken by c.tokens.hasToken.collectAsStateWithLifecycle(false)
+    var tokenDialog by remember { mutableStateOf(false) }
+    val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else tokenDialog = true }
+    if (tokenDialog) GitHubTokenDialog(onDismiss = { tokenDialog = false }, onSaved = { tokenDialog = false; c.importer.syncGitHub() })
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Logseq Pocket") },
                 actions = {
-                    if (onSync != null && ui.meta != null) IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync now") }
+                    IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync from GitHub") }
                     IconButton(onClick = pick) { Icon(Icons.Outlined.FileOpen, "Import notes") }
                     IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }
                 },
@@ -142,8 +149,8 @@ fun HomeScreen(
                         onAction = pick,
                     )
                 }
-                if (onSync != null) item {
-                    OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) { Text("Sync from GitHub instead") }
+                item {
+                    OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) { Text("Or sync from your private GitHub backup") }
                 }
                 return@LazyColumn
             }

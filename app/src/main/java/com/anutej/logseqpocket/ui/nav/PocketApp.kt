@@ -120,7 +120,6 @@ fun PocketApp() {
                         }
                     },
                     onSettings = { nav.navigate(SettingsRoute) },
-                    onSync = null,
                 )
             }
             composable<JournalsRoute> { JournalsScreen(onOpen = openPage) }

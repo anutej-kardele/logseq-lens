@@ -3,6 +3,7 @@ package com.anutej.logseqpocket.data.importer
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import com.anutej.logseqpocket.data.sync.GitHubSync
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ class ImportCoordinator(
     private val context: Context,
     private val scope: CoroutineScope,
     private val service: ImportService,
+    private val github: GitHubSync,
 ) {
     private val _state = MutableStateFlow<ImportState>(ImportState.Idle)
     val state: StateFlow<ImportState> = _state.asStateFlow()
@@ -34,11 +36,17 @@ class ImportCoordinator(
         }
     }
 
-    fun run(label: String, force: Boolean = false, source: () -> ImportSource) {
+    fun run(label: String, force: Boolean = false, source: () -> ImportSource) =
+        launch(label) { service.import(source(), force) }
+
+    /** Manual "Sync now" from the private GitHub backup. */
+    fun syncGitHub(force: Boolean = false) = launch("from GitHub") { github.sync(force) }
+
+    private fun launch(label: String, work: suspend () -> ImportOutcome) {
         if (_state.value is ImportState.Running) return
         _state.value = ImportState.Running(label)
         scope.launch {
-            val outcome = service.import(source(), force)
+            val outcome = work()
             _state.value = ImportState.Finished(outcome, System.currentTimeMillis())
         }
     }
