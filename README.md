@@ -1,8 +1,7 @@
 # Logseq Pocket
 
 Shows up on the phone as **Logseq** (with the Logseq mark, recreated from the official `logseq/logseq` icon; this is
-a personal, sideloaded build and must not be published under that name or logo). Inside the app the header says
-“Logseq Pocket”, to tell it apart from the official Logseq app.
+a personal, sideloaded build and must not be published under that name or logo). The in-app header also says “Logseq”.
 
 A native, **read-only**, **offline-first** Android companion for the `Activity` Logseq (DB version) graph.
 It reads the JSON export produced by the separate `logseq-backup` project (`data/mobile/activity.json`), stores it in
@@ -142,6 +141,8 @@ temporarily disable Auto Blocker (Settings → Security and privacy).
 A single note for thoughts and to-dos. It's deliberately **not** part of Logseq: it is never synced to GitHub or
 Logseq, and imports or “Clear local notes” never touch it.
 
+- **Size:** on Home and in the floating note it never takes more than ~40% of the screen height (room for the
+  keyboard); longer notes scroll inside it.
 - **Type in place:** the Scratchpad card on Home *is* the note. Tap a checkbox to tick it; tap any line (or
   the space below) and the keyboard opens right there.
   - Enter makes a new line, and starts another checkbox when you're on one.

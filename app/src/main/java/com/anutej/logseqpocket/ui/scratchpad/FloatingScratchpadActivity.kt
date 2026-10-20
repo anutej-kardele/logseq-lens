@@ -94,7 +94,8 @@ class FloatingScratchpadActivity : ComponentActivity() {
 private fun FloatingNote(vm: ScratchpadViewModel, onOpenFull: () -> Unit, onDismiss: () -> Unit) {
     val doc by vm.doc.collectAsStateWithLifecycle()
     var focusedLine by remember { mutableStateOf<Long?>(null) }
-    val maxHeight = (LocalConfiguration.current.screenHeightDp * 0.6f).dp
+    // Whole sheet ≤ ~40% of the screen so the keyboard and the home screen stay visible.
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * MAX_SCREEN_FRACTION).dp
     Box(
         Modifier
             .fillMaxSize()
@@ -110,7 +111,7 @@ private fun FloatingNote(vm: ScratchpadViewModel, onOpenFull: () -> Unit, onDism
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             color = MaterialTheme.colorScheme.surface,
         ) {
-            Column(Modifier.navigationBarsPadding().padding(top = 4.dp)) {
+            Column(Modifier.navigationBarsPadding().heightIn(max = maxHeight).padding(top = 4.dp)) {
                 Row(Modifier.padding(start = 20.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text("Scratchpad", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     IconButton(onClick = onOpenFull) { Icon(Icons.Outlined.OpenInFull, "Open full note", Modifier.size(18.dp)) }
@@ -122,7 +123,7 @@ private fun FloatingNote(vm: ScratchpadViewModel, onOpenFull: () -> Unit, onDism
                     onFocusedLine = { focusedLine = it },
                     tailHeight = 24.dp,
                     placeholder = "Thoughts, to-dos…",
-                    modifier = Modifier.heightIn(max = maxHeight).verticalScroll(rememberScrollState()),
+                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
                 )
                 HorizontalDivider()
                 PadEditToolbar(focusedLine ?: d.lines.last().id, vm, Modifier.padding(horizontal = 4.dp))

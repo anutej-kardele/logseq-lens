@@ -91,7 +91,7 @@ fun PadNoteEditor(
                 )
                 if (showPlaceholder && line == lines.first()) {
                     Text(
-                        placeholder!!,
+                        placeholder,
                         style = textStyle,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.padding(start = 20.dp, top = 8.dp),
@@ -217,6 +217,3 @@ private fun PadLineRow(
         )
     }
 }
-
-/** Convenience: the line ids currently shown, trimmed to the most recent [max] for compact views. */
-fun PadDoc.recentLines(max: Int): List<PadLine> = if (lines.size <= max) lines else lines.takeLast(max)

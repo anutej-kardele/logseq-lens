@@ -1,16 +1,18 @@
 package com.anutej.logseqpocket.ui.scratchpad
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.OpenInFull
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 
-private const val CARD_LINES = 8
+/** Share of the screen height the Scratchpad may use on Home and in the floating note. */
+const val MAX_SCREEN_FRACTION = 0.4f
 
 /**
  * The Scratchpad right on Home: tap a checkbox to tick it, tap anywhere else to type in place
@@ -36,13 +40,15 @@ private const val CARD_LINES = 8
 @Composable
 fun ScratchpadCard(doc: PadDoc?, vm: ScratchpadViewModel, onOpenFull: () -> Unit, modifier: Modifier = Modifier) {
     var focusedLine by remember { mutableStateOf<Long?>(null) }
+    // Never more than ~40% of the screen; the note scrolls inside the card.
+    val maxHeight = (LocalConfiguration.current.screenHeightDp * MAX_SCREEN_FRACTION).dp
     Surface(
         modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         shape = MaterialTheme.shapes.large,
     ) {
-        Column(Modifier.padding(top = 4.dp, bottom = 4.dp)) {
+        Column(Modifier.heightIn(max = maxHeight).padding(top = 4.dp, bottom = 4.dp)) {
             Row(Modifier.padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.EditNote, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
@@ -53,23 +59,14 @@ fun ScratchpadCard(doc: PadDoc?, vm: ScratchpadViewModel, onOpenFull: () -> Unit
                 IconButton(onClick = onOpenFull) { Icon(Icons.Outlined.OpenInFull, "Open full Scratchpad", Modifier.size(18.dp)) }
             }
             if (doc == null) return@Column
-            val hidden = doc.lines.size - CARD_LINES
-            if (hidden > 0) {
-                Text(
-                    "$hidden earlier line${if (hidden == 1) "" else "s"} · open full note",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.clickable(onClick = onOpenFull).padding(horizontal = 20.dp, vertical = 2.dp),
-                )
-            }
             PadNoteEditor(
                 doc = doc,
                 vm = vm,
-                lines = doc.recentLines(CARD_LINES),
                 onFocusedLine = { focusedLine = it },
                 textStyle = MaterialTheme.typography.bodyLarge,
                 tailHeight = 20.dp,
                 placeholder = "Tap to jot something down",
+                modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
             )
             if (focusedLine != null) {
                 HorizontalDivider(Modifier.padding(horizontal = 12.dp))

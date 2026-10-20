@@ -122,7 +122,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Logseq Pocket") },
+                title = { Text("Logseq") },
                 actions = {
                     IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync from GitHub") }
                     IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }

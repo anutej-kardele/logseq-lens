@@ -84,7 +84,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         ) {
             item {
                 MessageBanner(
-                    "Read-only. Logseq Pocket never edits, deletes or pushes anything to Logseq or GitHub.",
+                    "Read-only. This app never edits, deletes or pushes anything to Logseq or GitHub.",
                     icon = Icons.Outlined.Lock,
                 )
             }
@@ -171,7 +171,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
             item {
                 Text(
-                    "Logseq Pocket ${BuildConfigInfo.versionName} · no analytics, no tracking, no backend.",
+                    "Logseq (personal reader) ${BuildConfigInfo.versionName} · no analytics, no tracking, no backend.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 16.dp),
