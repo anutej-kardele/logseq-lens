@@ -7,7 +7,8 @@ install and setup; docs/DEVELOPMENT.md covers architecture, the data model, sign
 ## Hard rules
 - **Read-only.** Never add code that writes to Logseq, GitHub, or any remote. GitHub access is GET-only
   (`data/sync/GitHubSync.kt`): the configured export file plus metadata listings. Never request write scopes.
-- **Unofficial branding.** Don't use the official Logseq logo or present the app as Logseq's own.
+- **Unofficial.** The app is named Logseq Lens and uses the Logseq-style icon (owner's choice); keep the
+  "unofficial, not affiliated with Logseq" notice in the README and Settings.
 - **Never touch** `~/Code/Git/logseq-backup` or `~/logseq/graphs/Activity`. Don't change the exporter from here.
 - **Private data.** `local-data/activity.json` is real notes: never commit it, copy it into resources/assets, upload
   it, or print its content. Committed tests use only `app/src/test/resources/fixtures/synthetic-activity.json`.

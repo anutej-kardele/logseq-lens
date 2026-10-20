@@ -1,25 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Logseq Lens mark (original): a lens over outline bullets, inside the adaptive-icon safe zone. -->
+<!-- Logseq mark (recreated from logseq/logseq resources/icon.png) scaled into the adaptive-icon safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- outline: bullet + bars -->
-    <path android:fillColor="#5FB3A8" android:pathData="M36,38m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
-    <path android:fillColor="#E6EDF3" android:pathData="M43,35.5h22a2.5,2.5 0,0 1,0 5h-22a2.5,2.5 0,0 1,0 -5z" />
-    <path android:fillColor="#9FB3C8" android:pathData="M43,45.5h12a2.5,2.5 0,0 1,0 5h-12a2.5,2.5 0,0 1,0 -5z" />
-    <path android:fillColor="#9FB3C8" android:pathData="M43,55.5h8a2.5,2.5 0,0 1,0 5h-8a2.5,2.5 0,0 1,0 -5z" />
-    <!-- lens -->
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#5FB3A8"
-        android:strokeWidth="5"
-        android:pathData="M60,58m-12,0a12,12 0,1 1,24 0a12,12 0,1 1,-24 0" />
-    <path
-        android:fillColor="#00000000"
-        android:strokeColor="#5FB3A8"
-        android:strokeWidth="6"
-        android:strokeLineCap="round"
-        android:pathData="M69,67L76,74" />
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+    <group android:scaleX="0.78" android:scaleY="0.78" android:pivotX="512" android:pivotY="512"
+        android:translateX="2" android:translateY="8">
+        <group android:rotation="-22" android:pivotX="313" android:pivotY="329">
+            <path android:fillColor="#85C8C8" android:pathData="M225,329 a88,99 0 1,0 176,0 a88,99 0 1,0 -176,0 z" />
+        </group>
+        <group android:rotation="-12" android:pivotX="552" android:pivotY="280">
+            <path android:fillColor="#85C8C8" android:pathData="M459,280 a93,63 0 1,0 186,0 a93,63 0 1,0 -186,0 z" />
+        </group>
+        <group android:rotation="4" android:pivotX="572" android:pivotY="611">
+            <path android:fillColor="#85C8C8" android:pathData="M350,611 a222,186 0 1,0 444,0 a222,186 0 1,0 -444,0 z" />
+        </group>
+    </group>
 </vector>

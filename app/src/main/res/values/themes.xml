@@ -4,7 +4,7 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
     <color name="window_background">#FAF8F4</color>
-    <color name="ic_launcher_background">#0F1724</color>
+    <color name="ic_launcher_background">#002B36</color>
     <style name="Theme.LogseqPocket.Floating" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
