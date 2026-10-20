@@ -71,8 +71,8 @@ fun ScratchpadCard(
                 Icon(Icons.Outlined.EditNote, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
                 Text("Scratchpad", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                doc?.openItems?.takeIf { it > 0 }?.let {
-                    Text("$it open", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                doc?.takeIf { it.openItems > 0 }?.let {
+                    Text(it.openItemsLabel, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                 }
                 IconButton(onClick = onOpenFull) { Icon(Icons.Outlined.OpenInFull, "Open full Scratchpad", Modifier.size(18.dp)) }
             }

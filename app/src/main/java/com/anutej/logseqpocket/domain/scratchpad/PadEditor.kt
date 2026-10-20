@@ -21,6 +21,9 @@ data class PadDoc(
 ) {
     val isBlank: Boolean get() = lines.all { it.text.isBlank() && !it.checkbox }
     val openItems: Int get() = lines.count { it.checkbox && !it.checked }
+
+    /** "1 task" / "3 tasks" — unticked checkbox items, shown on the widget and Home card. */
+    val openItemsLabel: String get() = if (openItems == 1) "1 task" else "$openItems tasks"
 }
 
 /** Where the cursor should go after an edit. */

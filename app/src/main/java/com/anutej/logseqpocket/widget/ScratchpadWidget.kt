@@ -121,7 +121,7 @@ private fun WidgetBody(context: Context, doc: PadDoc) {
                     style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 15.sp, fontWeight = FontWeight.Bold),
                 )
                 if (doc.openItems > 0) {
-                    Text("${doc.openItems} open", style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp))
+                    Text(doc.openItemsLabel, style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 11.sp))
                 }
             }
             // Expand glyph = open the whole note in the app.

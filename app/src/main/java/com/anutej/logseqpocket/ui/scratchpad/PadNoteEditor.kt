@@ -10,17 +10,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.KeyboardHide
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -51,6 +54,9 @@ import com.anutej.logseqpocket.ui.theme.noteBodyStyle
 
 /** Invisible first character: when it disappears we know Backspace was pressed at column 0. */
 private const val SENTINEL = '​'
+
+/** Height of a checklist row; text lines get roughly the same height from their padding. */
+private val CHECKBOX_ROW = 32.dp
 
 /**
  * The Scratchpad as directly editable lines — used by the full screen, the Home card and the floating
@@ -95,7 +101,7 @@ fun PadNoteEditor(
                         placeholder,
                         style = textStyle,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        modifier = Modifier.padding(start = 20.dp, top = 8.dp),
+                        modifier = Modifier.padding(start = 12.dp, top = 5.dp),
                     )
                 }
             }
@@ -168,10 +174,16 @@ private fun PadLineRow(
     )
 
     Row(
-        Modifier.fillMaxWidth().padding(start = if (line.checkbox) 4.dp else 20.dp, end = 16.dp),
+        Modifier.fillMaxWidth().padding(start = if (line.checkbox) 4.dp else 12.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (line.checkbox) Checkbox(checked = line.checked, onCheckedChange = onChecked)
+        if (line.checkbox) {
+            // Compact box (32dp row instead of Material's 48dp) so checklist lines sit as close as text lines.
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides CHECKBOX_ROW) {
+                Checkbox(checked = line.checked, onCheckedChange = onChecked)
+            }
+            Spacer(Modifier.width(4.dp))
+        }
         BasicTextField(
             value = value,
             onValueChange = { new ->
@@ -207,7 +219,7 @@ private fun PadLineRow(
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
             modifier = Modifier
                 .weight(1f)
-                .padding(vertical = if (line.checkbox) 0.dp else 8.dp)
+                .padding(vertical = if (line.checkbox) 0.dp else 5.dp)
                 .focusRequester(requester)
                 .onFocusChanged {
                     if (it.isFocused != hasFocus) {
