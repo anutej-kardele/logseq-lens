@@ -236,9 +236,6 @@ interface StudyDao {
     )
     fun observeAllCards(): Flow<List<CardRow>>
 
-    @Query("SELECT COUNT(*) FROM cards")
-    fun observeCardCount(): Flow<Int>
-
     @Query("SELECT cardKey, tagKey FROM card_categories")
     fun observeCardCategories(): Flow<List<CardCategoryEntity>>
 

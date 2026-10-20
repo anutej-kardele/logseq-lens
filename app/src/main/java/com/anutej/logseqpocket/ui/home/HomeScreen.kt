@@ -20,10 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.FileOpen
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Style
@@ -40,13 +38,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -55,6 +53,7 @@ import androidx.lifecycle.viewModelScope
 import com.anutej.logseqpocket.AppContainer
 import com.anutej.logseqpocket.data.db.DatasetMetaEntity
 import com.anutej.logseqpocket.data.db.PageSummary
+import com.anutej.logseqpocket.data.importer.ImportOrigin
 import com.anutej.logseqpocket.data.importer.ImportState
 import com.anutej.logseqpocket.domain.markdown.InlineParser
 import com.anutej.logseqpocket.domain.markdown.plainText
@@ -72,6 +71,7 @@ import com.anutej.logseqpocket.ui.util.Format
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.stateIn
 
 data class HomeUi(
@@ -79,7 +79,6 @@ data class HomeUi(
     val meta: DatasetMetaEntity? = null,
     val recentJournals: List<PageSummary> = emptyList(),
     val recentlyUpdated: List<PageSummary> = emptyList(),
-    val cardCount: Int = 0,
     val importState: ImportState = ImportState.Idle,
 )
 
@@ -89,9 +88,8 @@ class HomeViewModel(private val c: AppContainer) : ViewModel() {
         c.notes.recentJournals(6),
         c.notes.recentlyUpdated(6),
         c.importer.state,
-        c.cardCount,
-    ) { meta, journals, updated, import, cards ->
-        HomeUi(false, meta, journals, updated, cards, import)
+    ) { meta, journals, updated, import ->
+        HomeUi(false, meta, journals, updated, import)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUi())
 
     fun dismissImport() = c.importer.dismiss()
@@ -124,7 +122,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Logseq") },
+                title = { HomeTitle(ui.meta, ui.importState) },
                 actions = {
                     IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync from GitHub") }
                     IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }
@@ -165,7 +163,6 @@ fun HomeScreen(
                 }
                 return@LazyColumn
             }
-            item { GraphCard(meta, ui.cardCount) }
             item { Shortcuts(onShortcut) }
             if (ui.recentJournals.isNotEmpty()) {
                 item { SectionHeader("Recent journals", trailing = { TextLink("All") { onShortcut(Shortcut.Journals) } }) }
@@ -175,15 +172,6 @@ fun HomeScreen(
                 item { SectionHeader("Recently updated") }
                 items(ui.recentlyUpdated, key = { "u:" + it.page.uuid }) { p ->
                     SimpleRow(p.page.title, "Updated ${Format.timestamp(p.page.updatedAt)}") { onOpenPage(p.page.uuid) }
-                }
-            } else if (!meta.hasTimestamps) {
-                item {
-                    Text(
-                        "This export has no edit timestamps, so “recently updated” isn't available.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 12.dp, start = 4.dp),
-                    )
                 }
             }
         }
@@ -201,47 +189,29 @@ private fun TextLink(text: String, onClick: () -> Unit) {
     )
 }
 
+/**
+ * Graph name plus one line of freshness ("Synced from GitHub · 2 h ago"). Counts and details live in
+ * Settings; the launcher already says "Logseq".
+ */
 @Composable
-private fun GraphCard(meta: DatasetMetaEntity, cards: Int) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.large) {
-        Column(Modifier.fillMaxWidth().padding(20.dp)) {
-            Text("GRAPH", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(meta.graph, style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(6.dp))
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                StatusPill(Icons.Outlined.Lock, "Read-only")
-                StatusPill(Icons.Outlined.CloudOff, "Works offline")
-            }
-            Spacer(Modifier.height(16.dp))
-            Row(Modifier.fillMaxWidth()) {
-                Stat("Pages", meta.pageCount, Modifier.weight(1f))
-                Stat("Blocks", meta.blockCount, Modifier.weight(1f))
-                Stat("Flashcards", cards, Modifier.weight(1f))
-            }
-            Spacer(Modifier.height(16.dp))
-            Text(
-                "Last import ${Format.timestamp(meta.importedAt)}" + (meta.originLabel?.let { " · $it" } ?: ""),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+private fun HomeTitle(meta: DatasetMetaEntity?, importState: ImportState) {
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() } }
+    val status = when {
+        importState is ImportState.Running -> "Syncing…"
+        meta == null -> "No notes yet"
+        meta.origin == ImportOrigin.GitHub.name -> "Synced from GitHub · ${Format.ago(meta.importedAt, now)}"
+        else -> "Imported from file · ${Format.ago(meta.importedAt, now)}"
     }
-}
-
-@Composable
-private fun StatusPill(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(icon, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.width(4.dp))
-        Text(text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-    }
-}
-
-@Composable
-private fun Stat(label: String, value: Int, modifier: Modifier) {
-    Column(modifier) {
-        Text("$value", style = MaterialTheme.typography.titleLarge)
-        Text(label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column {
+        Text(meta?.graph ?: "Logseq", maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(
+            status,
+            style = MaterialTheme.typography.labelMedium,
+            color = if (importState is ImportState.Running) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

@@ -34,5 +34,23 @@ object Format {
     fun timestamp(ms: Long?): String =
         ms?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(dateTime) } ?: "—"
 
+    private val shortDate = DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
+
+    /** "just now", "12 min ago", "3 h ago", "yesterday", or a short date — for sync freshness. */
+    fun ago(ms: Long, now: Long = System.currentTimeMillis()): String {
+        val diff = (now - ms).coerceAtLeast(0)
+        val minutes = diff / 60_000
+        val zone = ZoneId.systemDefault()
+        val day = Instant.ofEpochMilli(ms).atZone(zone).toLocalDate()
+        val today = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
+        return when {
+            minutes < 1 -> "just now"
+            minutes < 60 -> "$minutes min ago"
+            minutes < 24 * 60 && day == today -> "${minutes / 60} h ago"
+            day == today.minusDays(1) -> "yesterday"
+            else -> day.format(shortDate)
+        }
+    }
+
     fun count(n: Int, one: String, many: String = one + "s"): String = "$n ${if (n == 1) one else many}"
 }

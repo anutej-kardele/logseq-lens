@@ -15,7 +15,6 @@ import com.anutej.logseqpocket.data.repo.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,7 +36,6 @@ class AppContainer(context: Context) {
     val settings by lazy { SettingsRepository(appContext, onThemeChanged = ::refreshWidget) }
     val search by lazy { SearchRepository(database) }
     val study by lazy { StudyRepository(database) }
-    val cardCount: Flow<Int> get() = database.studyDao().observeCardCount()
 
     /** The single local-only Scratchpad note; edits refresh the home-screen widget. */
     val scratchpad: ScratchpadStore by lazy { ScratchpadStore(appContext, ::refreshWidget) }

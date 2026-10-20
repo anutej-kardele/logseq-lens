@@ -19,7 +19,7 @@ There is no backend, no Firebase, no analytics.
 |---|---|
 | Manual import of `activity.json` (Storage Access Framework) | ✅ |
 | Validation of `schemaVersion`, structure, UUIDs, dates, depth; atomic replace; failed imports keep the previous notes | ✅ |
-| Home dashboard (graph, real counts, last import, recent journals, shortcuts) | ✅ |
+| Home: graph name + sync freshness in the top bar, Scratchpad, shortcuts, recent journals (counts live in Settings) | ✅ |
 | Journals (grouped by month, newest first, readable dates, hide empty days) | ✅ |
 | Pages (alphabetical, text filter, kind filters, hide empty) | ✅ |
 | Note reader: nested outline, collapse/expand, Markdown, code blocks, `[[refs]]`, `#tags`, `((block refs))`, backlinks, selectable text | ✅ |
