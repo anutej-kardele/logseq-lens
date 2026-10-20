@@ -25,18 +25,21 @@ with a home-screen widget.
 
 ## Setup
 
-You need a Logseq **DB-version** graph on your computer and a **private** GitHub repo for the export.
+You need a Logseq **DB-version** graph on a Mac and a **private** GitHub repo for the backup.
 
-### 1. Export your graph to GitHub
+### 1. Back up your graph to GitHub
 
-Logseq Lens reads a JSON export produced by
-**[logseq-backup-tool](https://github.com/anutej-kardele/logseq-backup-tool)**. In short:
+Logseq Lens reads the JSON exports made by
+**[logseq-backup-blueprint](https://github.com/anutej-kardele/logseq-backup-blueprint)**, a free template you copy into
+your own private repo. Its README has the full steps; in short:
 
-1. Create a **private** GitHub repo for your backup, for example `logseq-backup`.
-2. Copy the tool's code into it and follow its README to configure your graph.
-3. Run it. It exports your graph to `data/mobile/activity.json` and pushes it to your private repo.
+1. Install the tools (macOS): `brew install git python node` and `npm install -g @logseq/cli`.
+2. Create an empty **private** repo on GitHub and clone it, then copy the blueprint's files into it.
+3. `cp config.example.json config.json` and set `source_graphs_dir` (usually `~/logseq/graphs`) and your branch.
+4. **Quit Logseq** (⌘Q), then run `bash scripts/backup.sh`. It writes one export per graph
+   (`data/mobile/activity.json`, `data/mobile/demo.json`, …) and pushes them to your private repo.
 
-Run the tool again whenever you want the app to see new notes.
+Run it again (or use its optional `logpush` command) whenever you want the app to see new notes.
 
 ### 2. Install the app
 

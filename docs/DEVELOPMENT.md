@@ -84,7 +84,7 @@ untouched. Review progress and the Scratchpad live outside the content tables an
 
 ## How the export is interpreted
 
-Input: the `schemaVersion 1` JSON written by the export pipeline (`data/mobile/activity.json`).
+Input: the `schemaVersion 1` JSON written by [logseq-backup-blueprint](https://github.com/anutej-kardele/logseq-backup-blueprint) (`data/mobile/<graph>.json`; its `manifest.json` is ignored).
 
 - **Pages**: `kind` is `journal` (with `journalDay` `YYYYMMDD`) or `tag` (user classes). Journal dates fall back
   to an ISO title.

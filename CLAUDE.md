@@ -1,7 +1,7 @@
 # CLAUDE.md — Logseq Lens conventions
 
 Logseq Lens: an unofficial, native Android, read-only, offline-first reader for Logseq DB-graph JSON exports
-(`data/mobile/activity.json`, produced by `logseq-backup-tool` into the user's own private repo). README.md covers
+(`data/mobile/activity.json`, produced by `logseq-backup-blueprint` into the user's own private repo). README.md covers
 install and setup; docs/DEVELOPMENT.md covers architecture, the data model, signing and tests.
 
 ## Hard rules
