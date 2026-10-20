@@ -1,0 +1,814 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "f6218eab4bddf40c7f284a82f47ff3cd",
+    "entities": [
+      {
+        "tableName": "dataset_meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `graph` TEXT NOT NULL, `schemaVersion` INTEGER NOT NULL, `source` TEXT, `logseqSchema` TEXT, `pageCount` INTEGER NOT NULL, `blockCount` INTEGER NOT NULL, `declaredPageCount` INTEGER, `declaredBlockCount` INTEGER, `excludedSystemViewBlocks` INTEGER, `importedAt` INTEGER NOT NULL, `origin` TEXT NOT NULL, `originLabel` TEXT, `contentSha256` TEXT NOT NULL, `byteCount` INTEGER NOT NULL, `etag` TEXT, `warnings` TEXT NOT NULL, `hasTimestamps` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "graph",
+            "columnName": "graph",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "schemaVersion",
+            "columnName": "schemaVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "logseqSchema",
+            "columnName": "logseqSchema",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pageCount",
+            "columnName": "pageCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockCount",
+            "columnName": "blockCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "declaredPageCount",
+            "columnName": "declaredPageCount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "declaredBlockCount",
+            "columnName": "declaredBlockCount",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "excludedSystemViewBlocks",
+            "columnName": "excludedSystemViewBlocks",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "importedAt",
+            "columnName": "importedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "origin",
+            "columnName": "origin",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originLabel",
+            "columnName": "originLabel",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "contentSha256",
+            "columnName": "contentSha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "byteCount",
+            "columnName": "byteCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "warnings",
+            "columnName": "warnings",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasTimestamps",
+            "columnName": "hasTimestamps",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "pages",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `entityId` INTEGER, `name` TEXT NOT NULL, `nameLower` TEXT NOT NULL, `title` TEXT NOT NULL, `titleLower` TEXT NOT NULL, `kind` TEXT NOT NULL, `journalDay` INTEGER, `createdAt` INTEGER, `updatedAt` INTEGER, `propertiesJson` TEXT NOT NULL, `blockCount` INTEGER NOT NULL, `nonEmptyBlockCount` INTEGER NOT NULL, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId",
+            "columnName": "entityId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameLower",
+            "columnName": "nameLower",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleLower",
+            "columnName": "titleLower",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "journalDay",
+            "columnName": "journalDay",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "propertiesJson",
+            "columnName": "propertiesJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockCount",
+            "columnName": "blockCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nonEmptyBlockCount",
+            "columnName": "nonEmptyBlockCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "uuid"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pages_nameLower",
+            "unique": false,
+            "columnNames": [
+              "nameLower"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pages_nameLower` ON `${TABLE_NAME}` (`nameLower`)"
+          },
+          {
+            "name": "index_pages_kind_journalDay",
+            "unique": false,
+            "columnNames": [
+              "kind",
+              "journalDay"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pages_kind_journalDay` ON `${TABLE_NAME}` (`kind`, `journalDay`)"
+          },
+          {
+            "name": "index_pages_titleLower",
+            "unique": false,
+            "columnNames": [
+              "titleLower"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pages_titleLower` ON `${TABLE_NAME}` (`titleLower`)"
+          }
+        ]
+      },
+      {
+        "tableName": "blocks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `pageUuid` TEXT NOT NULL, `parentUuid` TEXT, `depth` INTEGER NOT NULL, `siblingIndex` INTEGER NOT NULL, `preorder` INTEGER NOT NULL, `orderKey` TEXT, `content` TEXT NOT NULL, `collapsed` INTEGER NOT NULL, `childCount` INTEGER NOT NULL, `propertiesJson` TEXT NOT NULL, `createdAt` INTEGER, `updatedAt` INTEGER, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageUuid",
+            "columnName": "pageUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentUuid",
+            "columnName": "parentUuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "depth",
+            "columnName": "depth",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "siblingIndex",
+            "columnName": "siblingIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "preorder",
+            "columnName": "preorder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderKey",
+            "columnName": "orderKey",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "collapsed",
+            "columnName": "collapsed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "childCount",
+            "columnName": "childCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertiesJson",
+            "columnName": "propertiesJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "uuid"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_blocks_pageUuid_preorder",
+            "unique": false,
+            "columnNames": [
+              "pageUuid",
+              "preorder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_blocks_pageUuid_preorder` ON `${TABLE_NAME}` (`pageUuid`, `preorder`)"
+          },
+          {
+            "name": "index_blocks_parentUuid",
+            "unique": false,
+            "columnNames": [
+              "parentUuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_blocks_parentUuid` ON `${TABLE_NAME}` (`parentUuid`)"
+          }
+        ]
+      },
+      {
+        "tableName": "blocks_fts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`content` TEXT NOT NULL, tokenize=unicode61, content=`blocks`)",
+        "fields": [
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": []
+        },
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "unicode61",
+          "tokenizerArgs": [],
+          "contentTable": "blocks",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_blocks_fts_BEFORE_UPDATE BEFORE UPDATE ON `blocks` BEGIN DELETE FROM `blocks_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_blocks_fts_BEFORE_DELETE BEFORE DELETE ON `blocks` BEGIN DELETE FROM `blocks_fts` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_blocks_fts_AFTER_UPDATE AFTER UPDATE ON `blocks` BEGIN INSERT INTO `blocks_fts`(`docid`, `content`) VALUES (NEW.`rowid`, NEW.`content`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_blocks_fts_AFTER_INSERT AFTER INSERT ON `blocks` BEGIN INSERT INTO `blocks_fts`(`docid`, `content`) VALUES (NEW.`rowid`, NEW.`content`); END"
+        ]
+      },
+      {
+        "tableName": "tags",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tagKey` TEXT NOT NULL, `name` TEXT NOT NULL, `nameLower` TEXT NOT NULL, `pageUuid` TEXT, `blockCount` INTEGER NOT NULL, `pageCount` INTEGER NOT NULL, PRIMARY KEY(`tagKey`))",
+        "fields": [
+          {
+            "fieldPath": "tagKey",
+            "columnName": "tagKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameLower",
+            "columnName": "nameLower",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageUuid",
+            "columnName": "pageUuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "blockCount",
+            "columnName": "blockCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageCount",
+            "columnName": "pageCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tagKey"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tags_nameLower",
+            "unique": false,
+            "columnNames": [
+              "nameLower"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tags_nameLower` ON `${TABLE_NAME}` (`nameLower`)"
+          }
+        ]
+      },
+      {
+        "tableName": "block_tags",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`blockUuid` TEXT NOT NULL, `tagKey` TEXT NOT NULL, `position` INTEGER NOT NULL, PRIMARY KEY(`blockUuid`, `tagKey`))",
+        "fields": [
+          {
+            "fieldPath": "blockUuid",
+            "columnName": "blockUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagKey",
+            "columnName": "tagKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "blockUuid",
+            "tagKey"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_block_tags_tagKey",
+            "unique": false,
+            "columnNames": [
+              "tagKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_block_tags_tagKey` ON `${TABLE_NAME}` (`tagKey`)"
+          }
+        ]
+      },
+      {
+        "tableName": "page_tags",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pageUuid` TEXT NOT NULL, `tagKey` TEXT NOT NULL, PRIMARY KEY(`pageUuid`, `tagKey`))",
+        "fields": [
+          {
+            "fieldPath": "pageUuid",
+            "columnName": "pageUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagKey",
+            "columnName": "tagKey",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pageUuid",
+            "tagKey"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_tags_tagKey",
+            "unique": false,
+            "columnNames": [
+              "tagKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_tags_tagKey` ON `${TABLE_NAME}` (`tagKey`)"
+          }
+        ]
+      },
+      {
+        "tableName": "block_refs",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `blockUuid` TEXT NOT NULL, `kind` TEXT NOT NULL, `target` TEXT NOT NULL, `targetPageUuid` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockUuid",
+            "columnName": "blockUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "target",
+            "columnName": "target",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetPageUuid",
+            "columnName": "targetPageUuid",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_block_refs_blockUuid",
+            "unique": false,
+            "columnNames": [
+              "blockUuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_block_refs_blockUuid` ON `${TABLE_NAME}` (`blockUuid`)"
+          },
+          {
+            "name": "index_block_refs_targetPageUuid",
+            "unique": false,
+            "columnNames": [
+              "targetPageUuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_block_refs_targetPageUuid` ON `${TABLE_NAME}` (`targetPageUuid`)"
+          }
+        ]
+      },
+      {
+        "tableName": "cards",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cardKey` TEXT NOT NULL, `blockUuid` TEXT NOT NULL, `pageUuid` TEXT NOT NULL, `answerHash` TEXT NOT NULL, `answerBlockCount` INTEGER NOT NULL, `sortIndex` INTEGER NOT NULL, PRIMARY KEY(`cardKey`))",
+        "fields": [
+          {
+            "fieldPath": "cardKey",
+            "columnName": "cardKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockUuid",
+            "columnName": "blockUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageUuid",
+            "columnName": "pageUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "answerHash",
+            "columnName": "answerHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "answerBlockCount",
+            "columnName": "answerBlockCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortIndex",
+            "columnName": "sortIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "cardKey"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_cards_blockUuid",
+            "unique": false,
+            "columnNames": [
+              "blockUuid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_cards_blockUuid` ON `${TABLE_NAME}` (`blockUuid`)"
+          }
+        ]
+      },
+      {
+        "tableName": "card_categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cardKey` TEXT NOT NULL, `tagKey` TEXT NOT NULL, PRIMARY KEY(`cardKey`, `tagKey`))",
+        "fields": [
+          {
+            "fieldPath": "cardKey",
+            "columnName": "cardKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tagKey",
+            "columnName": "tagKey",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "cardKey",
+            "tagKey"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_card_categories_tagKey",
+            "unique": false,
+            "columnNames": [
+              "tagKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_categories_tagKey` ON `${TABLE_NAME}` (`tagKey`)"
+          }
+        ]
+      },
+      {
+        "tableName": "decks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tagKey` TEXT NOT NULL, `title` TEXT NOT NULL, PRIMARY KEY(`tagKey`))",
+        "fields": [
+          {
+            "fieldPath": "tagKey",
+            "columnName": "tagKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tagKey"
+          ]
+        }
+      },
+      {
+        "tableName": "review_progress",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cardKey` TEXT NOT NULL, `reviewCount` INTEGER NOT NULL, `knowCount` INTEGER NOT NULL, `againCount` INTEGER NOT NULL, `lastResult` TEXT, `lastReviewedAt` INTEGER, `lastBlockUuid` TEXT, `lastAnswerHash` TEXT, PRIMARY KEY(`cardKey`))",
+        "fields": [
+          {
+            "fieldPath": "cardKey",
+            "columnName": "cardKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reviewCount",
+            "columnName": "reviewCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "knowCount",
+            "columnName": "knowCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "againCount",
+            "columnName": "againCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastResult",
+            "columnName": "lastResult",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastReviewedAt",
+            "columnName": "lastReviewedAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastBlockUuid",
+            "columnName": "lastBlockUuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastAnswerHash",
+            "columnName": "lastAnswerHash",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "cardKey"
+          ]
+        }
+      },
+      {
+        "tableName": "review_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`deckKey` TEXT NOT NULL, `cardKeysJson` TEXT NOT NULL, `position` INTEGER NOT NULL, `resultsJson` TEXT NOT NULL, `shuffled` INTEGER NOT NULL, `againOnly` INTEGER NOT NULL, `startedAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`deckKey`))",
+        "fields": [
+          {
+            "fieldPath": "deckKey",
+            "columnName": "deckKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardKeysJson",
+            "columnName": "cardKeysJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resultsJson",
+            "columnName": "resultsJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shuffled",
+            "columnName": "shuffled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "againOnly",
+            "columnName": "againOnly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "startedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "deckKey"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f6218eab4bddf40c7f284a82f47ff3cd')"
+    ]
+  }
+}

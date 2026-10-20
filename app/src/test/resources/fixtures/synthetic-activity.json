@@ -1,0 +1,634 @@
+{
+  "blockCount": 30,
+  "excludedSystemViewBlocks": 2,
+  "futureTopLevel": {
+    "a": 1
+  },
+  "graph": "Synthetic",
+  "logseqSchema": {
+    ":major": 65,
+    ":minor": 22
+  },
+  "pageCount": 8,
+  "pages": [
+    {
+      "blocks": [],
+      "createdAt": null,
+      "entityId": -12,
+      "journalDay": null,
+      "kind": "tag",
+      "name": "algo-pattern",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "algo-pattern",
+      "updatedAt": null,
+      "uuid": "10000000-0000-4000-8000-000000000002"
+    },
+    {
+      "blocks": [],
+      "createdAt": null,
+      "entityId": -11,
+      "journalDay": null,
+      "kind": "tag",
+      "name": "leetcode",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "leetcode",
+      "updatedAt": null,
+      "uuid": "10000000-0000-4000-8000-000000000001"
+    },
+    {
+      "blocks": [],
+      "createdAt": null,
+      "entityId": -13,
+      "journalDay": null,
+      "kind": "tag",
+      "name": "habit",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "habit",
+      "updatedAt": null,
+      "uuid": "10000000-0000-4000-8000-000000000003"
+    },
+    {
+      "blocks": [
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "Studied **arrays** and `HashMap`",
+              "createdAt": null,
+              "entityId": -1001,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000002"
+            },
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "See [[Algorithms Notes]] and [[Missing Page]]",
+              "createdAt": null,
+              "entityId": -1002,
+              "order": "00000001",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000003"
+            }
+          ],
+          "collapsed": false,
+          "content": "09:00",
+          "createdAt": null,
+          "entityId": -1003,
+          "order": "00000000",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000001"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "Use a `HashMap<Integer, Integer>` of complements",
+              "createdAt": null,
+              "entityId": -1004,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000005"
+            },
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "```java\nint[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> seen = new HashMap<>();\n    return new int[0];\n}\n```",
+              "createdAt": null,
+              "entityId": -1005,
+              "order": "00000001",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000006"
+            },
+            {
+              "children": [
+                {
+                  "children": [],
+                  "collapsed": false,
+                  "content": "$O(N)$ time, $O(N)$ space",
+                  "createdAt": null,
+                  "entityId": -1006,
+                  "order": "00000000",
+                  "properties": {},
+                  "references": [],
+                  "tags": [],
+                  "updatedAt": null,
+                  "uuid": "40000000-0000-4000-8000-000000000008"
+                }
+              ],
+              "collapsed": false,
+              "content": "**Complexity**",
+              "createdAt": null,
+              "entityId": -1007,
+              "order": "00000002",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000007"
+            }
+          ],
+          "collapsed": true,
+          "content": "Two Sum - LC 1",
+          "createdAt": null,
+          "entityId": -1008,
+          "order": "00000001",
+          "properties": {
+            "logseq.property.fsrs/due": 1790018397264,
+            "logseq.property.fsrs/state": {
+              ":logseq/last-rating": ":good",
+              ":reps": 1,
+              ":state": ":learning"
+            }
+          },
+          "references": [],
+          "tags": [
+            {
+              "entityId": -14,
+              "name": "Card",
+              "uuid": "10000000-0000-5000-8000-0000000000c1"
+            },
+            {
+              "entityId": -11,
+              "name": "leetcode",
+              "uuid": "10000000-0000-4000-8000-000000000001"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000004"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "Keep a window [left, right) and move both ends",
+              "createdAt": null,
+              "entityId": -1009,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-00000000000a"
+            }
+          ],
+          "collapsed": false,
+          "content": "Sliding Window",
+          "createdAt": null,
+          "entityId": -1010,
+          "order": "00000002",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -14,
+              "name": "Card",
+              "uuid": "10000000-0000-5000-8000-0000000000c1"
+            },
+            {
+              "entityId": -12,
+              "name": "algo-pattern",
+              "uuid": "10000000-0000-4000-8000-000000000002"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000009"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "Combine prefix sums with a frequency map",
+              "createdAt": null,
+              "entityId": -1011,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-00000000000c"
+            }
+          ],
+          "collapsed": false,
+          "content": "Prefix Sum Pair",
+          "createdAt": null,
+          "entityId": -1012,
+          "order": "00000003",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -14,
+              "name": "Card",
+              "uuid": "10000000-0000-5000-8000-0000000000c1"
+            },
+            {
+              "entityId": -11,
+              "name": "leetcode",
+              "uuid": "10000000-0000-4000-8000-000000000001"
+            },
+            {
+              "entityId": -12,
+              "name": "algo-pattern",
+              "uuid": "10000000-0000-4000-8000-000000000002"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-00000000000b"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "Paris",
+              "createdAt": null,
+              "entityId": -1013,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-00000000000e"
+            }
+          ],
+          "collapsed": false,
+          "content": "Capital of France",
+          "createdAt": null,
+          "entityId": -1014,
+          "order": "00000004",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -14,
+              "name": "Card",
+              "uuid": "10000000-0000-5000-8000-0000000000c1"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-00000000000d"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "Unanswered prompt",
+          "createdAt": null,
+          "entityId": -1015,
+          "order": "00000005",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -14,
+              "name": "Card",
+              "uuid": "10000000-0000-5000-8000-0000000000c1"
+            },
+            {
+              "entityId": -11,
+              "name": "leetcode",
+              "uuid": "10000000-0000-4000-8000-000000000001"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-00000000000f"
+        },
+        {
+          "children": [
+            {
+              "children": [],
+              "collapsed": false,
+              "content": "not a card",
+              "createdAt": null,
+              "entityId": -1016,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000011"
+            }
+          ],
+          "collapsed": false,
+          "content": "Notes on LC 2",
+          "createdAt": null,
+          "entityId": -1017,
+          "order": "00000006",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -11,
+              "name": "leetcode",
+              "uuid": "10000000-0000-4000-8000-000000000001"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000010"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "#[[10000000-0000-4000-8000-000000000003]] gym",
+          "createdAt": null,
+          "entityId": -1018,
+          "order": "00000007",
+          "properties": {},
+          "references": [],
+          "tags": [
+            {
+              "entityId": -13,
+              "name": "habit",
+              "uuid": "10000000-0000-4000-8000-000000000003"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000012"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "",
+          "createdAt": null,
+          "entityId": -1019,
+          "order": "00000008",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000013"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "LeetCode Deck",
+          "createdAt": null,
+          "entityId": -1020,
+          "order": "00000009",
+          "properties": {
+            "logseq.property/query": "(tags [[10000000-0000-4000-8000-000000000001]])"
+          },
+          "references": [],
+          "tags": [
+            {
+              "entityId": -15,
+              "name": "Cards",
+              "uuid": "10000000-0000-5000-8000-0000000000c2"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000014"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "Pattern Deck",
+          "createdAt": null,
+          "entityId": -1021,
+          "order": "00000010",
+          "properties": {
+            "logseq.property/query": "(tags [[10000000-0000-4000-8000-000000000002]])"
+          },
+          "references": [],
+          "tags": [
+            {
+              "entityId": -15,
+              "name": "Cards",
+              "uuid": "10000000-0000-5000-8000-0000000000c2"
+            }
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000015"
+        }
+      ],
+      "createdAt": null,
+      "entityId": -21,
+      "journalDay": 20260105,
+      "kind": "journal",
+      "name": "2026-01-05",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "2026-01-05",
+      "updatedAt": null,
+      "uuid": "20000000-0000-4000-8000-000000000105"
+    },
+    {
+      "blocks": [],
+      "createdAt": null,
+      "entityId": -22,
+      "journalDay": 20260106,
+      "kind": "journal",
+      "name": "2026-01-06",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "2026-01-06",
+      "updatedAt": null,
+      "uuid": "20000000-0000-4000-8000-000000000106"
+    },
+    {
+      "blocks": [
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "second",
+          "createdAt": null,
+          "entityId": -1022,
+          "order": "00000001",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-00000000001f"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "first: prefix sums are great",
+          "createdAt": null,
+          "entityId": -1023,
+          "order": "00000000",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-00000000001e"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "string tag",
+          "createdAt": null,
+          "entityId": -1024,
+          "futureField": {
+            "x": 1
+          },
+          "order": "00000002",
+          "properties": {},
+          "references": [],
+          "tags": [
+            "habit"
+          ],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000020"
+        }
+      ],
+      "createdAt": null,
+      "entityId": -23,
+      "journalDay": "20260107",
+      "kind": "journal",
+      "name": "2026-01-07",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "2026-01-07",
+      "updatedAt": null,
+      "uuid": "20000000-0000-4000-8000-000000000107"
+    },
+    {
+      "blocks": [
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "dated by title",
+          "createdAt": null,
+          "entityId": -1030,
+          "order": "00000000",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000028"
+        }
+      ],
+      "createdAt": null,
+      "entityId": -24,
+      "journalDay": null,
+      "kind": "journal",
+      "name": "2026-01-08",
+      "properties": {},
+      "references": [],
+      "tags": [],
+      "title": "2026-01-08",
+      "updatedAt": null,
+      "uuid": "20000000-0000-4000-8000-000000000108"
+    },
+    {
+      "blocks": [
+        {
+          "children": [
+            {
+              "children": [
+                {
+                  "children": [],
+                  "collapsed": false,
+                  "content": "Level order: ((40000000-0000-4000-8000-000000000033))",
+                  "createdAt": null,
+                  "entityId": -1025,
+                  "order": "00000000",
+                  "properties": {},
+                  "references": [],
+                  "tags": [],
+                  "updatedAt": null,
+                  "uuid": "40000000-0000-4000-8000-000000000034"
+                }
+              ],
+              "collapsed": false,
+              "content": "BFS uses a queue",
+              "createdAt": null,
+              "entityId": -1026,
+              "order": "00000000",
+              "properties": {},
+              "references": [],
+              "tags": [],
+              "updatedAt": null,
+              "uuid": "40000000-0000-4000-8000-000000000033"
+            }
+          ],
+          "collapsed": false,
+          "content": "Graph algorithms",
+          "createdAt": null,
+          "entityId": -1027,
+          "order": "00000000",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000032"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "Link https://example.com/docs.",
+          "createdAt": null,
+          "entityId": -1028,
+          "order": "00000001",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000035"
+        },
+        {
+          "children": [],
+          "collapsed": false,
+          "content": "<script>alert(1)</script> stays literal",
+          "createdAt": null,
+          "entityId": -1029,
+          "order": "00000002",
+          "properties": {},
+          "references": [],
+          "tags": [],
+          "updatedAt": null,
+          "uuid": "40000000-0000-4000-8000-000000000036"
+        }
+      ],
+      "createdAt": null,
+      "entityId": -31,
+      "futurePageField": true,
+      "journalDay": null,
+      "kind": "page",
+      "name": "Algorithms Notes",
+      "properties": {},
+      "references": [],
+      "tags": [
+        {
+          "entityId": -12,
+          "name": "algo-pattern",
+          "uuid": "10000000-0000-4000-8000-000000000002"
+        }
+      ],
+      "title": "Algorithms Notes",
+      "updatedAt": null,
+      "uuid": "30000000-0000-4000-8000-000000000001"
+    }
+  ],
+  "schemaVersion": 1,
+  "source": "synthetic-test-fixture"
+}
