@@ -1,7 +1,6 @@
 package com.anutej.logseqpocket.ui.scratchpad
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,80 +9,72 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.OpenInFull
-import androidx.compose.material.icons.outlined.CheckBox
-import androidx.compose.material.icons.outlined.CheckBoxOutlineBlank
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.OpenInFull
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 
+private const val CARD_LINES = 8
+
 /**
- * Home preview of the Scratchpad: the latest lines plus an inline field to add more without opening
- * the editor. Tapping the card itself opens the full note.
+ * The Scratchpad right on Home: tap a checkbox to tick it, tap anywhere else to type in place
+ * (Enter for a new line, "[] " for a checkbox). The expand icon opens the full note.
  */
 @Composable
-fun ScratchpadCard(
-    doc: PadDoc?,
-    onOpen: () -> Unit,
-    onAdd: (text: String, checkbox: Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val preview = doc?.lines.orEmpty().filter { it.text.isNotBlank() }.takeLast(4)
+fun ScratchpadCard(doc: PadDoc?, vm: ScratchpadViewModel, onOpenFull: () -> Unit, modifier: Modifier = Modifier) {
+    var focusedLine by remember { mutableStateOf<Long?>(null) }
     Surface(
-        modifier.fillMaxWidth().clickable(onClick = onOpen),
+        modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         shape = MaterialTheme.shapes.large,
     ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.padding(top = 4.dp, bottom = 4.dp)) {
+            Row(Modifier.padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.EditNote, null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.width(8.dp))
                 Text("Scratchpad", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 doc?.openItems?.takeIf { it > 0 }?.let {
                     Text("$it open", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-                    Spacer(Modifier.width(8.dp))
                 }
-                Icon(Icons.Outlined.OpenInFull, "Open full Scratchpad", Modifier.size(18.dp))
+                IconButton(onClick = onOpenFull) { Icon(Icons.Outlined.OpenInFull, "Open full Scratchpad", Modifier.size(18.dp)) }
             }
-            if (preview.isEmpty()) {
+            if (doc == null) return@Column
+            val hidden = doc.lines.size - CARD_LINES
+            if (hidden > 0) {
                 Text(
-                    "Jot down thoughts or to-dos. Stays on this phone, never synced.",
-                    style = MaterialTheme.typography.bodySmall,
+                    "$hidden earlier line${if (hidden == 1) "" else "s"} · open full note",
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.clickable(onClick = onOpenFull).padding(horizontal = 20.dp, vertical = 2.dp),
                 )
             }
-            preview.forEach { line ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (line.checkbox) {
-                        Icon(
-                            if (line.checked) Icons.Outlined.CheckBox else Icons.Outlined.CheckBoxOutlineBlank,
-                            null,
-                            Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Spacer(Modifier.width(6.dp))
-                    }
-                    Text(
-                        line.text,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            textDecoration = if (line.checkbox && line.checked) TextDecoration.LineThrough else TextDecoration.None,
-                        ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+            PadNoteEditor(
+                doc = doc,
+                vm = vm,
+                lines = doc.recentLines(CARD_LINES),
+                onFocusedLine = { focusedLine = it },
+                textStyle = MaterialTheme.typography.bodyLarge,
+                tailHeight = 20.dp,
+                placeholder = "Tap to jot something down",
+            )
+            if (focusedLine != null) {
+                HorizontalDivider(Modifier.padding(horizontal = 12.dp))
+                PadEditToolbar(focusedLine, vm, Modifier.padding(horizontal = 4.dp))
             }
-            QuickAddField(onAdd = onAdd)
         }
     }
 }

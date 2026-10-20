@@ -30,14 +30,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Quick-capture sheet shown over the home screen (widget / "New to-do" shortcut).
+        <!-- The Scratchpad floating over the home screen (widget taps / "New to-do" shortcut).
              Own task affinity so it doesn't bring the main app forward. -->
         <activity
-            android:name=".ui.scratchpad.QuickAddActivity"
+            android:name=".ui.scratchpad.FloatingScratchpadActivity"
             android:exported="false"
             android:excludeFromRecents="true"
             android:taskAffinity="${applicationId}.quickadd"
-            android:theme="@style/Theme.LogseqPocket.QuickAdd"
+            android:theme="@style/Theme.LogseqPocket.Floating"
             android:windowSoftInputMode="stateAlwaysVisible|adjustResize" />
 
         <!-- Home-screen widget for the local-only Scratchpad (not Logseq data). -->

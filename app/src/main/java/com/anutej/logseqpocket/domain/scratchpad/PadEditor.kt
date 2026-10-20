@@ -34,6 +34,10 @@ data class Edit(val doc: PadDoc, val focus: Focus? = null)
  * into text; Backspace at the start of a checkbox removes the box, otherwise joins with the line above.
  */
 object PadEditor {
+    private val CHECKBOX_PREFIX = Regex("""^(?:[-*] )?\[( |x|X)?] """)
+
+    /** Length of a leading "[] " / "[ ] " / "- [ ] " / "[x] " that turns a text line into a checkbox, else null. */
+    fun checkboxPrefixLength(text: String): Int? = CHECKBOX_PREFIX.find(text)?.value?.length
 
     /**
      * Applies new text for [id]. Newlines (typed Enter or pasted text) split the line; [cursor] is the
@@ -44,6 +48,17 @@ object PadEditor {
         if (idx < 0) return Edit(doc)
         val line = doc.lines[idx]
         if ('\n' !in newText) {
+            // Typing "[] " (or "[ ] ", "- [ ] ", "[x] ") at the start of a text line makes it a checkbox.
+            if (!line.checkbox) {
+                CHECKBOX_PREFIX.find(newText)?.let { m ->
+                    val checked = m.groupValues[1].equals("x", ignoreCase = true)
+                    val rest = newText.substring(m.range.last + 1)
+                    val box = line.copy(text = rest, checkbox = true, checked = checked)
+                    // No focus change: the text field already shows the line without the prefix, and a
+                    // late cursor move would land in the middle of whatever is typed next.
+                    return Edit(doc.withLines(doc.lines.replaceAt(idx, box)))
+                }
+            }
             return Edit(doc.withLines(doc.lines.replaceAt(idx, line.copy(text = newText))))
         }
         // Enter on an empty checkbox line leaves the list instead of adding another empty box.
@@ -104,21 +119,6 @@ object PadEditor {
         }
         val line = PadLine(doc.nextId, checkbox = true)
         return Edit(doc.copy(lines = doc.lines + line, nextId = doc.nextId + 1), Focus(line.id, 0))
-    }
-
-    /**
-     * Adds typed text at the end without opening the editor (quick-add popup, Home card). Each line
-     * of [text] becomes its own line; a trailing empty text line is reused instead of left behind.
-     */
-    fun appendText(doc: PadDoc, text: String, checkbox: Boolean): PadDoc {
-        val parts = text.replace("\r\n", "\n").split('\n').map { it.trimEnd() }.filter { it.isNotBlank() }
-        if (parts.isEmpty()) return doc
-        var lines = doc.lines
-        val last = lines.lastOrNull()
-        if (last != null && last.text.isEmpty()) lines = lines.dropLast(1)
-        var nextId = doc.nextId
-        val added = parts.map { PadLine(nextId++, it, checkbox = checkbox) }
-        return doc.copy(lines = lines + added, nextId = nextId)
     }
 
     /** Removes ticked items; always leaves at least one line. */

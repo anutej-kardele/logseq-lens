@@ -102,29 +102,26 @@ class PadEditorTest {
     }
 }
 
-class PadEditorAppendTest {
+class PadEditorShortcutTest {
     private fun doc(vararg lines: PadLine) = PadDoc(lines = lines.toList(), nextId = 100)
 
-    @Test fun appendsCheckboxItemsAndReusesTrailingEmptyLine() {
-        val d = PadEditor.appendText(doc(PadLine(1, "Ideas"), PadLine(2, "")), "milk\n\n eggs ", checkbox = true)
-        assertEquals(listOf("Ideas", "milk", " eggs"), d.lines.map { it.text })
-        assertEquals(listOf(false, true, true), d.lines.map { it.checkbox })
-        assertEquals(102, d.nextId)
+    @Test fun typingBracketsAtLineStartMakesACheckbox() {
+        for (prefix in listOf("[] ", "[ ] ", "- [ ] ", "* [ ] ")) {
+            val e = PadEditor.changeText(doc(PadLine(1, "")), 1, prefix, cursor = prefix.length)
+            assertEquals(prefix, PadLine(1, "", checkbox = true), e.doc.lines[0])
+            assertEquals(null, e.focus)
+        }
     }
 
-    @Test fun appendsPlainTextAfterExistingContent() {
-        val d = PadEditor.appendText(doc(PadLine(1, "a", checkbox = true)), "a thought", checkbox = false)
-        assertEquals(PadLine(100, "a thought"), d.lines.last())
-        assertEquals(2, d.lines.size)
+    @Test fun checkedPrefixAndExistingTextAreKept() {
+        val e = PadEditor.changeText(doc(PadLine(1, "milk")), 1, "[x] milk", cursor = 4)
+        assertEquals(PadLine(1, "milk", checkbox = true, checked = true), e.doc.lines[0])
+        assertEquals(null, e.focus)
     }
 
-    @Test fun blankInputChangesNothing() {
-        val d = doc(PadLine(1, "a"))
-        assertEquals(d, PadEditor.appendText(d, "  \n ", checkbox = true))
-    }
-
-    @Test fun appendingToAFreshNoteReplacesTheEmptyStarterLine() {
-        val d = PadEditor.appendText(PadDoc(), "first", checkbox = false)
-        assertEquals(listOf("first"), d.lines.map { it.text })
+    @Test fun bracketsElsewhereOrOnCheckboxLinesStayText() {
+        assertEquals("a [] b", PadEditor.changeText(doc(PadLine(1, "a b")), 1, "a [] b").doc.lines[0].text)
+        assertEquals("[] x", PadEditor.changeText(doc(PadLine(1, "x", checkbox = true)), 1, "[] x").doc.lines[0].text)
+        assertFalse(PadEditor.changeText(doc(PadLine(1, "")), 1, "[]").doc.lines[0].checkbox)
     }
 }

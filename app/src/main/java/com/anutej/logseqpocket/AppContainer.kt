@@ -34,7 +34,7 @@ class AppContainer(context: Context) {
     val githubSync by lazy { GitHubSync(database, importService, tokens) }
     val importer by lazy { ImportCoordinator(appContext, appScope, importService, githubSync) }
     val notes by lazy { NotesRepository(database) }
-    val settings by lazy { SettingsRepository(appContext) }
+    val settings by lazy { SettingsRepository(appContext, onThemeChanged = ::refreshWidget) }
     val search by lazy { SearchRepository(database) }
     val study by lazy { StudyRepository(database) }
     val cardCount: Flow<Int> get() = database.studyDao().observeCardCount()

@@ -32,7 +32,7 @@ There is no backend, no Firebase, no analytics.
 | Private GitHub sync (paste-once read-only token, ETag, offline fallback) | ✅ implemented and tested against a local mock server; **not yet run against your real repo** (needs your token on the phone) |
 | Optional background check (WorkManager, off by default) | ✅ (timing is up to Android) |
 | **Scratchpad**: one local note mixing text and checkboxes, on a Home card | ✅ |
-| Scratchpad home-screen widget (tick boxes in place, quick-capture sheet, expand to full note) | ✅ |
+| Scratchpad home-screen widget (tick in place, tap to edit in a floating note, follows app theme) | ✅ |
 | Launcher shortcuts (long-press icon → Scratchpad / New to-do) | ✅ |
 
 ### Not in this version (future)
@@ -142,23 +142,22 @@ temporarily disable Auto Blocker (Settings → Security and privacy).
 A single note for thoughts and to-dos. It's deliberately **not** part of Logseq: it is never synced to GitHub or
 Logseq, and imports or “Clear local notes” never touch it.
 
-- **Quick capture without opening the editor:**
-  - Type straight into the field on the Home card.
-  - Tap **Type something…** on the widget, or long-press the app icon → **New Scratchpad item**. A small sheet
-    slides up over whatever you're doing; each Enter/Send adds a line (checkbox toggle on the left), and Done
-    returns you to where you were.
-- **Open the full note:** the expand icon (⤢) on the widget or Home card, the Home card itself, or long-press the
-  app icon → **Scratchpad**.
-- **Checkboxes:**
-  - The **Checkbox** button toggles the current line between text and a checkbox. **New item** adds a checkbox.
-  - Enter on a checkbox line starts another one; Enter on an empty checkbox line goes back to text.
-  - Backspace at the start of a checkbox removes the box; at the start of a text line it joins with the line above.
-- **Menu (⋮):** Clear checked items · Add widget to home screen · Share as text (Markdown `- [ ]` / `- [x]`, so it
-  pastes cleanly into Logseq).
-- **Widget:** add it from the Scratchpad menu or the launcher's widget picker (“Logseq → Scratchpad”, resizable).
-  - Checkboxes can be ticked right on the widget. Android widgets can't host text fields, so **Type something…**
-    opens the quick-capture sheet; the expand icon or tapping an existing text line opens the full editor.
-  - App and widget stay in sync both ways.
+- **Type in place:** the Scratchpad card on Home *is* the note. Tap a checkbox to tick it; tap any line (or
+  the space below) and the keyboard opens right there.
+  - Enter makes a new line, and starts another checkbox when you're on one.
+  - Enter on an empty checkbox line goes back to plain text.
+  - Backspace at the start removes the box or joins the line with the one above.
+  - Typing `[] ` (also `[ ] `, `- [ ] `, `[x] `) at the start of a line turns it into a checkbox.
+  - While typing, a slim row offers a checkbox toggle and a hide-keyboard button. Nothing else takes up space.
+- **Widget:** checkboxes tick in place. Tapping any text or empty space opens the same note floating over the home
+  screen, with the keyboard up and the cursor on the line you tapped; tap outside to close. Android widgets can't
+  host text fields, so this floating note is as close to typing on the widget itself as Android allows.
+  - The expand icon (⤢) opens the full note in the app.
+  - The widget follows the app's Light / Dark / System theme setting.
+- **Shortcuts:** long-press the app icon → **Scratchpad** (full note) or **New Scratchpad item** (floating note
+  with a new checkbox).
+- **Menu (⋮ on the full note):** Clear checked items · Add widget to home screen · Share as text (Markdown
+  `- [ ]` / `- [x]`, so it pastes cleanly into Logseq).
 - **Storage:** `scratchpad.json` in app storage (DataStore, atomic writes). Cloud backup is disabled for privacy,
   so **uninstalling the app deletes the Scratchpad**; use *Share as text* to keep a copy.
 
@@ -263,7 +262,7 @@ notes is shown as text and never executed, and only `http(s)` links open.
 
 ## Tests
 
-- 97 JVM tests (`./gradlew testDebugUnitTest`), including Scratchpad editing rules and storage (persistence,
+- 96 JVM tests (`./gradlew testDebugUnitTest`), including Scratchpad editing rules and storage (persistence,
   concurrent widget/editor writes, corrupt-file fallback), plus: parser, validation, unsupported schema, hierarchy and order,
   journal dates, tags/refs, Markdown, flashcard classification and answers, card identity, Room import and
   rollback, FTS search, offline persistence (reopen from disk), progress preservation, study sessions, and GitHub

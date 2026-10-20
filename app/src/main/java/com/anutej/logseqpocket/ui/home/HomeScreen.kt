@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,7 +42,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,13 +65,12 @@ import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
 import com.anutej.logseqpocket.ui.sync.GitHubTokenDialog
 import com.anutej.logseqpocket.ui.scratchpad.ScratchpadCard
+import com.anutej.logseqpocket.ui.scratchpad.ScratchpadViewModel
 import com.anutej.logseqpocket.ui.util.Format
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import com.anutej.logseqpocket.domain.scratchpad.PadEditor
 
 data class HomeUi(
     val loading: Boolean = true,
@@ -114,8 +113,8 @@ fun HomeScreen(
     }
     val pick = { picker.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }
     val hasToken by c.tokens.hasToken.collectAsStateWithLifecycle(false)
-    val pad by c.scratchpad.doc.collectAsStateWithLifecycle(null)
-    val scope = rememberCoroutineScope()
+    val padVm = pocketViewModel(key = "home-scratchpad") { ScratchpadViewModel(it.scratchpad) }
+    val pad by padVm.doc.collectAsStateWithLifecycle()
     var tokenDialog by remember { mutableStateOf(false) }
     val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else tokenDialog = true }
     if (tokenDialog) GitHubTokenDialog(onDismiss = { tokenDialog = false }, onSaved = { tokenDialog = false; c.importer.syncGitHub() })
@@ -133,7 +132,7 @@ fun HomeScreen(
     ) { padding ->
         if (ui.loading) { LoadingState(Modifier.padding(padding)); return@Scaffold }
         LazyColumn(
-            Modifier.fillMaxSize(),
+            Modifier.fillMaxSize().imePadding(),
             contentPadding = PaddingValues(
                 start = 16.dp, end = 16.dp,
                 top = padding.calculateTopPadding() + 4.dp,
@@ -141,11 +140,7 @@ fun HomeScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            item {
-                ScratchpadCard(pad, onScratchpad, onAdd = { text, checkbox ->
-                    scope.launch { c.scratchpad.update { PadEditor.appendText(it, text, checkbox) } }
-                })
-            }
+            item(key = "scratchpad") { ScratchpadCard(pad, padVm, onScratchpad) }
             if (ui.importState !is ImportState.Idle) {
                 item { ImportStatusBanner(ui.importState, vm::dismissImport) }
             }

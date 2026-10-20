@@ -1,83 +1,52 @@
 package com.anutej.logseqpocket.ui.scratchpad
 
 import android.content.Intent
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.AddTask
-import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.DeleteSweep
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Widgets
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import com.anutej.logseqpocket.widget.ScratchpadWidgetReceiver
 import com.anutej.logseqpocket.data.scratchpad.ScratchpadStore
 import com.anutej.logseqpocket.domain.scratchpad.Edit
 import com.anutej.logseqpocket.domain.scratchpad.Focus
 import com.anutej.logseqpocket.domain.scratchpad.PadDoc
 import com.anutej.logseqpocket.domain.scratchpad.PadEditor
-import com.anutej.logseqpocket.domain.scratchpad.PadLine
 import com.anutej.logseqpocket.ui.components.LoadingState
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
-import com.anutej.logseqpocket.ui.theme.PocketTheme
-import com.anutej.logseqpocket.ui.theme.noteBodyStyle
+import com.anutej.logseqpocket.widget.ScratchpadWidgetReceiver
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -102,6 +71,15 @@ class ScratchpadViewModel(private val store: ScratchpadStore) : ViewModel() {
     fun focusLine(f: Focus) { _focus.value = f }
     fun focusConsumed() { _focus.value = null }
 
+    /** Puts the cursor at the end of [lineId] (or of the last line) once the note has loaded. */
+    fun focusWhenLoaded(lineId: Long?) {
+        viewModelScope.launch {
+            val d = store.current()
+            val line = d.lines.firstOrNull { it.id == lineId } ?: d.lines.last()
+            _focus.value = Focus(line.id, line.text.length)
+        }
+    }
+
     // DataStore applies updates in call order, so each edit sees the result of the previous one.
     private fun edit(op: (PadDoc) -> Edit) {
         viewModelScope.launch {
@@ -112,30 +90,19 @@ class ScratchpadViewModel(private val store: ScratchpadStore) : ViewModel() {
     }
 }
 
-/** Invisible first character: when it disappears we know Backspace was pressed at column 0. */
-private const val SENTINEL = '​'
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScratchpadScreen(startNewItem: Boolean, onBack: () -> Unit) {
-    val vm = pocketViewModel { ScratchpadViewModel(it.scratchpad) }
+    val vm = pocketViewModel(key = "scratchpad-screen") { ScratchpadViewModel(it.scratchpad) }
     val doc by vm.doc.collectAsStateWithLifecycle()
-    val focus by vm.focus.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var menu by remember { mutableStateOf(false) }
-    var focusedId by remember { mutableStateOf<Long?>(null) }
+    var focusedLine by remember { mutableStateOf<Long?>(null) }
     var newItemHandled by rememberSaveable { mutableStateOf(false) }
-    val listState = rememberLazyListState()
-    val requesters = remember { mutableStateMapOf<Long, FocusRequester>() }
 
     LaunchedEffect(doc != null) {
         if (doc != null && startNewItem && !newItemHandled) { newItemHandled = true; vm.appendCheckbox() }
-    }
-    LaunchedEffect(focus, doc?.lines?.size) {
-        val f = focus ?: return@LaunchedEffect
-        val index = doc?.lines?.indexOfFirst { it.id == f.lineId } ?: -1
-        if (index >= 0 && listState.layoutInfo.visibleItemsInfo.none { it.index == index }) listState.scrollToItem(index)
     }
 
     Scaffold(
@@ -179,136 +146,24 @@ fun ScratchpadScreen(startNewItem: Boolean, onBack: () -> Unit) {
             )
         },
         bottomBar = {
-            Surface(color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.navigationBarsPadding().imePadding()) {
-                Column {
-                    HorizontalDivider()
-                    Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        TextButton(onClick = { focusedId?.let(vm::toggleCheckbox) }, enabled = focusedId != null) {
-                            Icon(Icons.Outlined.CheckBox, null, Modifier.size(20.dp)); Spacer(Modifier.width(6.dp)); Text("Checkbox")
-                        }
-                        TextButton(onClick = vm::appendCheckbox) {
-                            Icon(Icons.Outlined.AddTask, null, Modifier.size(20.dp)); Spacer(Modifier.width(6.dp)); Text("New item")
-                        }
-                        Spacer(Modifier.weight(1f))
-                        Text(
-                            "Only on this phone",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(end = 8.dp),
-                        )
-                    }
+            if (focusedLine != null) {
+                Surface(color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.navigationBarsPadding().imePadding()) {
+                    PadEditToolbar(focusedLine, vm, Modifier.padding(horizontal = 4.dp))
                 }
             }
         },
     ) { padding ->
         val d = doc
         if (d == null) { LoadingState(Modifier.padding(padding)); return@Scaffold }
-        LazyColumn(
-            state = listState,
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = padding.calculateTopPadding() + 4.dp, bottom = padding.calculateBottomPadding() + 8.dp),
-        ) {
-            itemsIndexed(d.lines, key = { _, l -> l.id }) { _, line ->
-                val requester = requesters.getOrPut(line.id) { FocusRequester() }
-                PadLineRow(
-                    line = line,
-                    requester = requester,
-                    focusRequest = focus?.takeIf { it.lineId == line.id },
-                    onFocusConsumed = vm::focusConsumed,
-                    onFocused = { focusedId = line.id },
-                    onText = { text, cursor -> vm.changeText(line.id, text, cursor) },
-                    onBackspaceAtStart = { vm.backspaceAtStart(line.id) },
-                    onChecked = { vm.setChecked(line.id, it) },
-                )
-            }
-            item(key = "tail") {
-                // Tapping below the last line puts the cursor at its end.
-                Box(
-                    Modifier.fillMaxWidth().height(240.dp).clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) { d.lines.lastOrNull()?.let { vm.focusLine(Focus(it.id, it.text.length)) } },
-                )
-            }
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())) {
+            PadNoteEditor(
+                doc = d,
+                vm = vm,
+                onFocusedLine = { focusedLine = it },
+                tailHeight = 320.dp,
+                placeholder = "Thoughts, to-dos… (type [] for a checkbox)",
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
-    }
-}
-
-@Composable
-private fun PadLineRow(
-    line: PadLine,
-    requester: FocusRequester,
-    focusRequest: Focus?,
-    onFocusConsumed: () -> Unit,
-    onFocused: () -> Unit,
-    onText: (String, Int) -> Unit,
-    onBackspaceAtStart: () -> Unit,
-    onChecked: (Boolean) -> Unit,
-) {
-    var value by remember(line.id) { mutableStateOf(TextFieldValue("$SENTINEL${line.text}", TextRange(line.text.length + 1))) }
-    var hasFocus by remember { mutableStateOf(false) }
-
-    // Adopt external changes (merges, widget, other screens) unless the user is typing in this line.
-    LaunchedEffect(line.text) {
-        if (!hasFocus && value.text.drop(1) != line.text) {
-            value = TextFieldValue("$SENTINEL${line.text}", TextRange(line.text.length + 1))
-        }
-    }
-    LaunchedEffect(focusRequest) {
-        val f = focusRequest ?: return@LaunchedEffect
-        val text = if (hasFocus) value.text.drop(1) else line.text
-        val c = f.cursor.coerceIn(0, text.length)
-        value = TextFieldValue("$SENTINEL$text", TextRange(c + 1))
-        runCatching { requester.requestFocus() }
-        onFocusConsumed()
-    }
-
-    val base = noteBodyStyle(PocketTheme.readingSize)
-    val checked = line.checkbox && line.checked
-    val style = base.copy(
-        color = if (checked) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-        textDecoration = if (checked) TextDecoration.LineThrough else TextDecoration.None,
-    )
-
-    Row(
-        Modifier.fillMaxWidth().padding(start = if (line.checkbox) 4.dp else 20.dp, end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        if (line.checkbox) Checkbox(checked = line.checked, onCheckedChange = onChecked)
-        BasicTextField(
-            value = value,
-            onValueChange = { new ->
-                val old = value
-                when {
-                    !new.text.startsWith(SENTINEL) && new.text.length == old.text.length - 1 &&
-                        new.text == old.text.drop(1) -> onBackspaceAtStart()
-                    else -> {
-                        val raw = new.text.removePrefix(SENTINEL.toString())
-                        val shift = if (new.text.startsWith(SENTINEL)) 1 else 0
-                        val cursor = (new.selection.end - shift).coerceIn(0, raw.length)
-                        if ('\n' in raw) {
-                            val first = raw.substringBefore('\n')
-                            value = TextFieldValue("$SENTINEL$first", TextRange(first.length + 1))
-                            onText(raw, cursor)
-                        } else {
-                            val sel = TextRange(
-                                (new.selection.start - shift).coerceIn(0, raw.length) + 1,
-                                (new.selection.end - shift).coerceIn(0, raw.length) + 1,
-                            )
-                            value = new.copy(text = "$SENTINEL$raw", selection = sel)
-                            if (raw != old.text.drop(1)) onText(raw, cursor)
-                        }
-                    }
-                }
-            },
-            textStyle = style,
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = if (line.checkbox) 0.dp else 8.dp)
-                .focusRequester(requester)
-                .onFocusChanged { hasFocus = it.isFocused; if (it.isFocused) onFocused() },
-        )
     }
 }

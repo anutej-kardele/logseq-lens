@@ -10,6 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.anutej.logseqpocket.ui.theme.ReadingSize
 import com.anutej.logseqpocket.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val Context.settingsStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -20,7 +21,7 @@ data class AppSettings(
     val backgroundSync: Boolean = false,
 )
 
-class SettingsRepository(context: Context) {
+class SettingsRepository(context: Context, private val onThemeChanged: () -> Unit = {}) {
     private val store = context.applicationContext.settingsStore
 
     val settings: Flow<AppSettings> = store.data.map { p ->
@@ -31,7 +32,12 @@ class SettingsRepository(context: Context) {
         )
     }
 
-    suspend fun setTheme(mode: ThemeMode) = store.edit { it[THEME] = mode.name }
+    suspend fun current(): AppSettings = settings.first()
+
+    suspend fun setTheme(mode: ThemeMode) {
+        store.edit { it[THEME] = mode.name }
+        onThemeChanged()
+    }
     suspend fun setReadingSize(size: ReadingSize) = store.edit { it[READING] = size.name }
     suspend fun setBackgroundSync(enabled: Boolean) = store.edit { it[BACKGROUND_SYNC] = enabled }
 
