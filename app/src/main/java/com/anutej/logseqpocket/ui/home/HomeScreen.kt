@@ -63,6 +63,7 @@ import com.anutej.logseqpocket.ui.components.SectionHeader
 import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
 import com.anutej.logseqpocket.ui.sync.GitHubTokenDialog
+import com.anutej.logseqpocket.ui.scratchpad.ScratchpadCard
 import com.anutej.logseqpocket.ui.util.Format
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -100,6 +101,7 @@ fun HomeScreen(
     onOpenPage: (String) -> Unit,
     onShortcut: (Shortcut) -> Unit,
     onSettings: () -> Unit,
+    onScratchpad: () -> Unit,
 ) {
     val c = appContainer()
     val vm = pocketViewModel { HomeViewModel(it) }
@@ -109,6 +111,7 @@ fun HomeScreen(
     }
     val pick = { picker.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }
     val hasToken by c.tokens.hasToken.collectAsStateWithLifecycle(false)
+    val pad by c.scratchpad.doc.collectAsStateWithLifecycle(null)
     var tokenDialog by remember { mutableStateOf(false) }
     val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else tokenDialog = true }
     if (tokenDialog) GitHubTokenDialog(onDismiss = { tokenDialog = false }, onSaved = { tokenDialog = false; c.importer.syncGitHub() })
@@ -119,7 +122,6 @@ fun HomeScreen(
                 title = { Text("Logseq Pocket") },
                 actions = {
                     IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync from GitHub") }
-                    IconButton(onClick = pick) { Icon(Icons.Outlined.FileOpen, "Import notes") }
                     IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }
                 },
             )
@@ -135,6 +137,7 @@ fun HomeScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            item { ScratchpadCard(pad, onScratchpad) }
             if (ui.importState !is ImportState.Idle) {
                 item { ImportStatusBanner(ui.importState, vm::dismissImport) }
             }
@@ -154,7 +157,7 @@ fun HomeScreen(
                 }
                 return@LazyColumn
             }
-            item { GraphCard(meta, ui.cardCount, pick) }
+            item { GraphCard(meta, ui.cardCount) }
             item { Shortcuts(onShortcut) }
             if (ui.recentJournals.isNotEmpty()) {
                 item { SectionHeader("Recent journals", trailing = { TextLink("All") { onShortcut(Shortcut.Journals) } }) }
@@ -190,7 +193,7 @@ private fun TextLink(text: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun GraphCard(meta: DatasetMetaEntity, cards: Int, onImport: () -> Unit) {
+private fun GraphCard(meta: DatasetMetaEntity, cards: Int) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.large) {
         Column(Modifier.fillMaxWidth().padding(20.dp)) {
             Text("GRAPH", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -212,12 +215,6 @@ private fun GraphCard(meta: DatasetMetaEntity, cards: Int, onImport: () -> Unit)
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Spacer(Modifier.height(12.dp))
-            FilledTonalButton(onClick = onImport) {
-                Icon(Icons.Outlined.FileOpen, null, Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("Import / refresh from file")
-            }
         }
     }
 }

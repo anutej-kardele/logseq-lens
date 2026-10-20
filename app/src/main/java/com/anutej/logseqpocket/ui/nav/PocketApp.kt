@@ -17,6 +17,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,6 +42,7 @@ import com.anutej.logseqpocket.ui.home.HomeScreen
 import com.anutej.logseqpocket.ui.home.Shortcut
 import com.anutej.logseqpocket.ui.journals.JournalsScreen
 import com.anutej.logseqpocket.ui.reader.PageScreen
+import com.anutej.logseqpocket.ui.scratchpad.ScratchpadScreen
 import com.anutej.logseqpocket.ui.search.SearchScreen
 import com.anutej.logseqpocket.ui.settings.SettingsScreen
 import com.anutej.logseqpocket.ui.tags.TagScreen
@@ -65,9 +67,20 @@ private fun NavHostController.switchTab(route: Any) = navigate(route) {
     restoreState = true
 }
 
+/** Requests coming from outside the app (widget, launcher shortcut). */
+enum class ExternalRequest { Scratchpad, ScratchpadNewItem }
+
 @Composable
-fun PocketApp() {
+fun PocketApp(external: ExternalRequest? = null, onExternalHandled: () -> Unit = {}) {
     val nav = rememberNavController()
+    LaunchedEffect(external) {
+        when (external) {
+            null -> Unit
+            ExternalRequest.Scratchpad -> nav.navigate(ScratchpadRoute()) { launchSingleTop = true }
+            ExternalRequest.ScratchpadNewItem -> nav.navigate(ScratchpadRoute(newItem = true)) { launchSingleTop = true }
+        }
+        if (external != null) onExternalHandled()
+    }
     val backStack by nav.currentBackStackEntryAsState()
     val destination = backStack?.destination
     val snackbar = remember { SnackbarHostState() }
@@ -120,6 +133,7 @@ fun PocketApp() {
                         }
                     },
                     onSettings = { nav.navigate(SettingsRoute) },
+                    onScratchpad = { nav.navigate(ScratchpadRoute()) },
                 )
             }
             composable<JournalsRoute> { JournalsScreen(onOpen = openPage) }
@@ -134,6 +148,9 @@ fun PocketApp() {
             }
             composable<CardsRoute> { CardsScreen(onStudy = { nav.navigate(StudyRoute(it)) }) }
             composable<SearchRoute> { SearchScreen(onNavigate = onNavigate) }
+            composable<ScratchpadRoute> { entry ->
+                ScratchpadScreen(startNewItem = entry.toRoute<ScratchpadRoute>().newItem, onBack = { nav.popBackStack() })
+            }
             composable<SettingsRoute> { SettingsScreen(onBack = { nav.popBackStack() }) }
             composable<PageRoute> { entry ->
                 val r = entry.toRoute<PageRoute>()

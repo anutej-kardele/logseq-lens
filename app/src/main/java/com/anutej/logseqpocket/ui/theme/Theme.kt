@@ -31,7 +31,7 @@ data class PocketColors(
     val again: Color,
 )
 
-private val DarkScheme = darkColorScheme(
+internal val DarkScheme = darkColorScheme(
     primary = Palette.Teal300,
     onPrimary = Palette.Teal900,
     primaryContainer = Palette.Teal800,
@@ -57,7 +57,7 @@ private val DarkScheme = darkColorScheme(
     error = Palette.Rose300,
 )
 
-private val LightScheme = lightColorScheme(
+internal val LightScheme = lightColorScheme(
     primary = Palette.Teal700,
     onPrimary = Color.White,
     primaryContainer = Palette.Teal100,

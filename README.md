@@ -1,5 +1,9 @@
 # Logseq Pocket
 
+Shows up on the phone as **Logseq** (with the Logseq mark, recreated from the official `logseq/logseq` icon; this is
+a personal, sideloaded build and must not be published under that name or logo). Inside the app the header says
+“Logseq Pocket”, to tell it apart from the official Logseq app.
+
 A native, **read-only**, **offline-first** Android companion for the `Activity` Logseq (DB version) graph.
 It reads the JSON export produced by the separate `logseq-backup` project (`data/mobile/activity.json`), stores it in
 a local Room database, and lets you read journals and pages, browse tags and classes, search everything offline,
@@ -27,6 +31,9 @@ There is no backend, no Firebase, no analytics.
 | Settings: dataset info, re-import, clear notes / progress (confirmed), theme, reading size | ✅ |
 | Private GitHub sync (paste-once read-only token, ETag, offline fallback) | ✅ implemented and tested against a local mock server; **not yet run against your real repo** (needs your token on the phone) |
 | Optional background check (WorkManager, off by default) | ✅ (timing is up to Android) |
+| **Scratchpad**: one local note mixing text and checkboxes, on a Home card | ✅ |
+| Scratchpad home-screen widget (tick boxes on the widget; “+” opens a new item) | ✅ |
+| Launcher shortcuts (long-press icon → Scratchpad / New to-do) | ✅ |
 
 ### Not in this version (future)
 Bookmarks/reading history, search filters by tag/date, a calendar view, rich media attachments, biometric lock,
@@ -124,10 +131,30 @@ temporarily disable Auto Blocker (Settings → Security and privacy).
 ## Use
 
 1. On the Mac, run `logpush` as usual (this app does not change that pipeline).
-2. **Manual import:** get `data/mobile/activity.json` onto the phone (USB, Quick Share, cloud drive…), open
-   Logseq Pocket → **Import notes** → pick the file. Importing the same file again reports “Already up to date”.
+2. **Manual import:** get `data/mobile/activity.json` onto the phone (USB, Quick Share, cloud drive…), then
+   **Settings → Import JSON** (or **Import notes** on the first-run screen). Importing the same file again reports
+   “Already up to date”.
 3. **GitHub sync:** see below. Afterwards use the sync icon on Home or **Settings → Sync now**.
 4. Everything you have imported works offline (verified on the emulator in airplane mode).
+
+### Scratchpad (local only)
+
+A single note for thoughts and to-dos. It's deliberately **not** part of Logseq: it is never synced to GitHub or
+Logseq, and imports or “Clear local notes” never touch it.
+
+- **Open it:** the Scratchpad card at the top of Home, the widget, or by long-pressing the app icon.
+- **Checkboxes:**
+  - The **Checkbox** button toggles the current line between text and a checkbox. **New item** adds a checkbox.
+  - Enter on a checkbox line starts another one; Enter on an empty checkbox line goes back to text.
+  - Backspace at the start of a checkbox removes the box; at the start of a text line it joins with the line above.
+- **Menu (⋮):** Clear checked items · Add widget to home screen · Share as text (Markdown `- [ ]` / `- [x]`, so it
+  pastes cleanly into Logseq).
+- **Widget:** add it from the Scratchpad menu or the launcher's widget picker (“Logseq → Scratchpad”, resizable).
+  - Checkboxes can be ticked right on the widget. Typing isn't possible there, because Android widgets can't host
+    text fields, so tapping text or the title opens the editor, and **+** opens it with a new checkbox.
+  - App and widget stay in sync both ways.
+- **Storage:** `scratchpad.json` in app storage (DataStore, atomic writes). Cloud backup is disabled for privacy,
+  so **uninstalling the app deletes the Scratchpad**; use *Share as text* to keep a copy.
 
 ### GitHub sync setup (once)
 
@@ -217,7 +244,9 @@ data/importer  GraphMapper (validate + flatten + tags/refs/cards), ImportService
 data/db        Room entities, DAOs, FTS4 index, PocketDatabase (schema JSON in app/schemas)
 data/repo      Notes, Search, Study, Settings (DataStore) repositories
 data/sync      GitHubSync (OkHttp), KeystoreTokenStore, SyncWorker
-domain         Markdown/Logseq inline parser, RefIndex, PropertyFormatter, CardIdentity, StudySession
+data/scratchpad ScratchpadStore (DataStore JSON file, separate from the Room database)
+widget         Glance home-screen widget + tick action
+domain         Markdown/Logseq inline parser, RefIndex, PropertyFormatter, CardIdentity, StudySession, PadEditor
 ui             Compose screens (home, journals, pages, tags, reader, search, cards, settings, sync), theme tokens
 ```
 
@@ -228,7 +257,8 @@ notes is shown as text and never executed, and only `http(s)` links open.
 
 ## Tests
 
-- 75 JVM tests (`./gradlew testDebugUnitTest`): parser, validation, unsupported schema, hierarchy and order,
+- 93 JVM tests (`./gradlew testDebugUnitTest`), including Scratchpad editing rules and storage (persistence,
+  concurrent widget/editor writes, corrupt-file fallback), plus: parser, validation, unsupported schema, hierarchy and order,
   journal dates, tags/refs, Markdown, flashcard classification and answers, card identity, Room import and
   rollback, FTS search, offline persistence (reopen from disk), progress preservation, study sessions, and GitHub
   sync (MockWebServer: 200/304/401/403/404/429/500, truncated body, network down, no token).

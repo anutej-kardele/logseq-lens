@@ -11,3 +11,4 @@ import kotlinx.serialization.Serializable
 @Serializable data class PageRoute(val uuid: String, val focusBlock: String? = null)
 @Serializable data class TagRoute(val tagKey: String)
 @Serializable data class StudyRoute(val deckKey: String)
+@Serializable data class ScratchpadRoute(val newItem: Boolean = false)

@@ -15,6 +15,8 @@ separate `logseq-backup` repo). See README.md for features, setup and the data-m
 - No analytics, crash SDKs, Firebase, or new network services. Justify any new dependency (maintained, needed).
 - Imports must stay atomic: parse + validate + map fully in memory, then replace content in one Room transaction.
   A failure must leave the previous dataset intact. `review_progress` / `review_sessions` are never cleared by imports.
+- The **Scratchpad** is the only user-editable data. It is local-only (`data/scratchpad`, its own DataStore file):
+  never sync it, never store it in the Room content tables, and never let imports/clear-notes touch it.
 - Preserve note text exactly. The Markdown renderer must not drop or rewrite characters; unknown syntax and HTML
   render literally. Only `http(s)` links may open.
 

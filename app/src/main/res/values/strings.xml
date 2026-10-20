@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Logseq Pocket</string>
+    <!-- Launcher label. In-app headers still say "Logseq Pocket" to tell it apart from the official app. -->
+    <string name="app_name">Logseq</string>
+    <string name="scratchpad">Scratchpad</string>
+    <string name="scratchpad_widget_description">Your Scratchpad note with tappable checkboxes</string>
 </resources>
