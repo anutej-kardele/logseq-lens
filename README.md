@@ -162,26 +162,44 @@ Logseq, and imports or “Clear local notes” never touch it.
 - **Storage:** `scratchpad.json` in app storage (DataStore, atomic writes). Cloud backup is disabled for privacy,
   so **uninstalling the app deletes the Scratchpad**; use *Share as text* to keep a copy.
 
-### GitHub sync setup (once)
+### GitHub sync setup (once) — works with anyone's own repo
 
-Logseq Pocket reads exactly one file from the private repo, fixed in code:
-`anutej-kardele/logseq-backup`, branch `master`, path `data/mobile/activity.json`.
+The app reads one export file from a private GitHub repo that **you** choose. The default is
+`anutej-kardele/logseq-backup`, branch `master`, `data/mobile/activity.json`; anyone else enters their own.
+Requirements for a friend: a Logseq **DB-version** graph, the same `logseq-backup` export pipeline (so the file is
+the same `schemaVersion 1` JSON), the export pushed to their own private repo, and their own token.
 
 1. On GitHub: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
 2. Resource owner: your account. Expiration: your choice (e.g. 90 days).
-3. **Repository access → Only select repositories → `logseq-backup`.**
+3. **Repository access → Only select repositories →** your backup repo.
 4. **Permissions → Repository permissions → Contents: Read-only.** (Metadata: Read-only is added automatically.)
    Grant nothing else.
-5. Generate, copy the `github_pat_…` token, and paste it once into the app (Home sync icon or Settings → Add token).
+5. In the app tap the sync icon on Home (or **Settings → Sync → Connect / Edit source**). The **Connect GitHub**
+   form asks for:
+   - **GitHub link**: paste any of the clone link (`https://github.com/you/logseq-backup.git`, also the SSH form
+     or `you/logseq-backup`), a file link (`…/blob/<branch>/<path>.json`), a folder link (`…/tree/<branch>/<dir>`)
+     or a raw link. Owner/repo/branch/file fill in from it.
+   - **Token**: with only a repo link, the app finds the repo's default branch and the `.json` exports itself
+     (preferring `data/mobile/`). Branch and File also offer dropdowns of what's in the repo.
+   - **Connect & sync** downloads the file. The new source becomes active **only if the download validates**;
+     otherwise your current notes and source stay as they were.
+
+**Switching graphs.** Tap the graph name at the top of Home to see the `.json` exports in the same folder (for
+example `activity` and `demo`). Picking one downloads it and **replaces** the notes on the phone; one graph is
+stored at a time and switching needs internet. Flashcard progress isn't lost: it's keyed by page + question text,
+so it reappears when you switch back. To change repo or branch, use **Change source…** in the same menu or
+Settings → Sync → Edit source.
 
 How the token is handled:
 - It is encrypted with an AES-256-GCM key held in the Android Keystore; only ciphertext is stored, and app data is
   excluded from Google/Samsung cloud backup and device transfer.
 - It's never logged or shown again. **Replace token** and **Remove token** are in Settings. Revoke it on GitHub
   when no longer needed.
-- Requests: one authenticated `GET /repos/anutej-kardele/logseq-backup/contents/data/mobile/activity.json?ref=master`
-  with `Accept: application/vnd.github.raw+json` and `If-None-Match`. A `304` costs nothing and skips the rebuild.
-  No write endpoints, no clone, no `raw.githubusercontent.com`, no HTTP cache.
+- Requests (all `GET`): the export via `/repos/{owner}/{repo}/contents/{path}?ref={branch}` with
+  `Accept: application/vnd.github.raw+json` and `If-None-Match` (a `304` costs nothing and skips the rebuild; ETags
+  are only reused for the same file). To help fill the form and the switcher: `/repos/{o}/{r}` (default branch),
+  `/repos/{o}/{r}/branches`, `/repos/{o}/{r}/contents/{folder}` and `/repos/{o}/{r}/git/trees/{branch}?recursive=1`
+  (file names only). No write endpoints, no clone, no `raw.githubusercontent.com`, no HTTP cache.
 - Expired or revoked tokens (401), missing access (403/404), rate limits, malformed downloads and offline
   errors all leave the local notes untouched and show a message.
 

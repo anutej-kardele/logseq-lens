@@ -7,6 +7,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.anutej.logseqpocket.data.sync.DEFAULT_SOURCE
+import com.anutej.logseqpocket.data.sync.GitHubSourceConfig
 import com.anutej.logseqpocket.ui.theme.ReadingSize
 import com.anutej.logseqpocket.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +21,10 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.System,
     val readingSize: ReadingSize = ReadingSize.Medium,
     val backgroundSync: Boolean = false,
+    /** The repo/branch/file the GitHub sync reads. Not secret; the token is stored separately. */
+    val githubSource: GitHubSourceConfig = DEFAULT_SOURCE,
+    /** `.json` files last seen in the source's folder (for the graph switcher, also offline). */
+    val githubFiles: List<String> = emptyList(),
 )
 
 class SettingsRepository(context: Context, private val onThemeChanged: () -> Unit = {}) {
@@ -29,6 +35,13 @@ class SettingsRepository(context: Context, private val onThemeChanged: () -> Uni
             themeMode = p[THEME]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.System,
             readingSize = p[READING]?.let { runCatching { ReadingSize.valueOf(it) }.getOrNull() } ?: ReadingSize.Medium,
             backgroundSync = p[BACKGROUND_SYNC] ?: false,
+            githubSource = GitHubSourceConfig(
+                owner = p[GH_OWNER] ?: DEFAULT_SOURCE.owner,
+                repo = p[GH_REPO] ?: DEFAULT_SOURCE.repo,
+                branch = p[GH_BRANCH] ?: DEFAULT_SOURCE.branch,
+                path = p[GH_PATH] ?: DEFAULT_SOURCE.path,
+            ),
+            githubFiles = p[GH_FILES]?.split('\n')?.filter { it.isNotBlank() }.orEmpty(),
         )
     }
 
@@ -41,9 +54,28 @@ class SettingsRepository(context: Context, private val onThemeChanged: () -> Uni
     suspend fun setReadingSize(size: ReadingSize) = store.edit { it[READING] = size.name }
     suspend fun setBackgroundSync(enabled: Boolean) = store.edit { it[BACKGROUND_SYNC] = enabled }
 
+    suspend fun setGitHubSource(source: GitHubSourceConfig) = store.edit {
+        if (it[GH_OWNER] != source.owner || it[GH_REPO] != source.repo || it[GH_BRANCH] != source.branch ||
+            (it[GH_PATH] ?: DEFAULT_SOURCE.path).substringBeforeLast('/', "") != source.folder
+        ) {
+            it.remove(GH_FILES) // the cached file list belonged to another folder
+        }
+        it[GH_OWNER] = source.owner
+        it[GH_REPO] = source.repo
+        it[GH_BRANCH] = source.branch
+        it[GH_PATH] = source.path
+    }
+
+    suspend fun setGitHubFiles(files: List<String>) = store.edit { it[GH_FILES] = files.joinToString("\n") }
+
     private companion object {
         val THEME = stringPreferencesKey("theme_mode")
         val READING = stringPreferencesKey("reading_size")
         val BACKGROUND_SYNC = booleanPreferencesKey("background_sync")
+        val GH_OWNER = stringPreferencesKey("github_owner")
+        val GH_REPO = stringPreferencesKey("github_repo")
+        val GH_BRANCH = stringPreferencesKey("github_branch")
+        val GH_PATH = stringPreferencesKey("github_path")
+        val GH_FILES = stringPreferencesKey("github_files")
     }
 }

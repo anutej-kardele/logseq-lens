@@ -21,7 +21,7 @@ class SyncWorker(context: Context, params: WorkerParameters) : CoroutineWorker(c
     override suspend fun doWork(): Result {
         val container = (applicationContext as LogseqPocketApp).container
         if (container.tokens.load() == null) return Result.success()
-        return when (val r = container.githubSync.sync()) {
+        return when (val r = container.githubSync.sync(container.settings.current().githubSource)) {
             is ImportOutcome.Failed -> if (r.error is ImportError.Network) Result.retry() else Result.success()
             else -> Result.success()
         }

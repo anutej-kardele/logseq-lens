@@ -31,7 +31,7 @@ class AppContainer(context: Context) {
     val importService by lazy { ImportService(database) }
     val tokens: TokenStore by lazy { KeystoreTokenStore(appContext) }
     val githubSync by lazy { GitHubSync(database, importService, tokens) }
-    val importer by lazy { ImportCoordinator(appContext, appScope, importService, githubSync) }
+    val importer by lazy { ImportCoordinator(appContext, appScope, importService, githubSync, settings) }
     val notes by lazy { NotesRepository(database) }
     val settings by lazy { SettingsRepository(appContext, onThemeChanged = ::refreshWidget) }
     val search by lazy { SearchRepository(database) }

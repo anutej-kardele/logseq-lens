@@ -63,7 +63,15 @@ import com.anutej.logseqpocket.ui.components.LoadingState
 import com.anutej.logseqpocket.ui.components.SectionHeader
 import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
-import com.anutej.logseqpocket.ui.sync.GitHubTokenDialog
+import com.anutej.logseqpocket.ui.sync.ConnectGitHubDialog
+import com.anutej.logseqpocket.data.repo.AppSettings
+import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import com.anutej.logseqpocket.ui.scratchpad.HOME_CARD_FRACTION
 import com.anutej.logseqpocket.ui.scratchpad.ScratchpadCard
 import com.anutej.logseqpocket.ui.scratchpad.ScratchpadViewModel
@@ -113,16 +121,28 @@ fun HomeScreen(
     }
     val pick = { picker.launch(arrayOf("application/json", "application/octet-stream", "text/plain", "*/*")) }
     val hasToken by c.tokens.hasToken.collectAsStateWithLifecycle(false)
+    val scope = rememberCoroutineScope()
     val padVm = pocketViewModel(key = "home-scratchpad") { ScratchpadViewModel(it.scratchpad) }
     val pad by padVm.doc.collectAsStateWithLifecycle()
-    var tokenDialog by remember { mutableStateOf(false) }
-    val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else tokenDialog = true }
-    if (tokenDialog) GitHubTokenDialog(onDismiss = { tokenDialog = false }, onSaved = { tokenDialog = false; c.importer.syncGitHub() })
+    val settings by c.settings.settings.collectAsStateWithLifecycle(AppSettings())
+    var connectDialog by remember { mutableStateOf(false) }
+    val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else connectDialog = true }
+    if (connectDialog) ConnectGitHubDialog(onDismiss = { connectDialog = false })
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { HomeTitle(ui.meta, ui.importState) },
+                title = {
+                    HomeTitle(
+                        meta = ui.meta,
+                        importState = ui.importState,
+                        settings = settings,
+                        hasToken = hasToken,
+                        onOpenSwitcher = { scope.launch { c.importer.refreshGitHubFilesNow() } },
+                        onSwitch = { path -> c.importer.syncGitHub(settings.githubSource.copy(path = path)) },
+                        onChangeSource = { connectDialog = true },
+                    )
+                },
                 actions = {
                     IconButton(onClick = onSync) { Icon(Icons.Outlined.Sync, "Sync from GitHub") }
                     IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, "Settings") }
@@ -159,7 +179,7 @@ fun HomeScreen(
                     )
                 }
                 item {
-                    OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) { Text("Or sync from your private GitHub backup") }
+                    OutlinedButton(onClick = onSync, modifier = Modifier.fillMaxWidth()) { Text("Or connect your GitHub backup repo") }
                 }
                 return@LazyColumn
             }
@@ -194,7 +214,16 @@ private fun TextLink(text: String, onClick: () -> Unit) {
  * Settings; the launcher already says "Logseq".
  */
 @Composable
-private fun HomeTitle(meta: DatasetMetaEntity?, importState: ImportState) {
+private fun HomeTitle(
+    meta: DatasetMetaEntity?,
+    importState: ImportState,
+    settings: AppSettings,
+    hasToken: Boolean,
+    onOpenSwitcher: () -> Unit,
+    onSwitch: (path: String) -> Unit,
+    onChangeSource: () -> Unit,
+) {
+    var menu by remember { mutableStateOf(false) }
     var now by remember { mutableStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) { while (true) { delay(60_000); now = System.currentTimeMillis() } }
     val status = when {
@@ -203,8 +232,13 @@ private fun HomeTitle(meta: DatasetMetaEntity?, importState: ImportState) {
         meta.origin == ImportOrigin.GitHub.name -> "Synced from GitHub · ${Format.ago(meta.importedAt, now)}"
         else -> "Imported from file · ${Format.ago(meta.importedAt, now)}"
     }
-    Column {
-        Text(meta?.graph ?: "Logseq", maxLines = 1, overflow = TextOverflow.Ellipsis)
+    val source = settings.githubSource
+    val files = settings.githubFiles.ifEmpty { listOf(source.path) }
+    Column(Modifier.clickable(enabled = hasToken) { menu = true; onOpenSwitcher() }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(meta?.graph ?: "Logseq", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (hasToken) Icon(Icons.Outlined.ArrowDropDown, "Switch graph")
+        }
         Text(
             status,
             style = MaterialTheme.typography.labelMedium,
@@ -212,6 +246,36 @@ private fun HomeTitle(meta: DatasetMetaEntity?, importState: ImportState) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+        // Graph switcher: the .json exports in the source folder. Picking one downloads it and replaces the
+        // current graph (only after it validates); flashcard progress comes back when you switch back.
+        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+            Text(
+                "${source.repoSlug} · ${source.branch}" + (source.folder.takeIf { it.isNotEmpty() }?.let { " · $it" } ?: ""),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+            )
+            files.forEach { f ->
+                val current = f == source.path
+                DropdownMenuItem(
+                    text = { Text(f.substringAfterLast('/').removeSuffix(".json")) },
+                    leadingIcon = { if (current) Icon(Icons.Outlined.Check, "Current") else Spacer(Modifier.size(24.dp)) },
+                    onClick = { menu = false; if (!current) onSwitch(f) },
+                )
+            }
+            Text(
+                "Switching downloads that file (needs internet) and replaces the notes on this phone.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp).width(260.dp),
+            )
+            HorizontalDivider()
+            DropdownMenuItem(
+                text = { Text("Change source…") },
+                leadingIcon = { Icon(Icons.Outlined.Settings, null) },
+                onClick = { menu = false; onChangeSource() },
+            )
+        }
     }
 }
 
