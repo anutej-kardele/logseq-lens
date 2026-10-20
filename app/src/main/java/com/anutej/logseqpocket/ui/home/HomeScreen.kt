@@ -65,6 +65,7 @@ import com.anutej.logseqpocket.ui.nav.appContainer
 import com.anutej.logseqpocket.ui.nav.pocketViewModel
 import com.anutej.logseqpocket.ui.sync.ConnectGitHubDialog
 import com.anutej.logseqpocket.data.repo.AppSettings
+import com.anutej.logseqpocket.data.sync.isGraphExportCandidate
 import androidx.compose.material.icons.outlined.ArrowDropDown
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.DropdownMenu
@@ -233,7 +234,8 @@ private fun HomeTitle(
         else -> "Imported from file · ${Format.ago(meta.importedAt, now)}"
     }
     val source = settings.githubSource
-    val files = settings.githubFiles.ifEmpty { listOf(source.path) }
+    // Filtered again here so lists cached by older versions drop manifest/config files too.
+    val files = settings.githubFiles.filter(::isGraphExportCandidate).ifEmpty { listOf(source.path) }
     Column(Modifier.clickable(enabled = hasToken) { menu = true; onOpenSwitcher() }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(meta?.graph ?: "Logseq", maxLines = 1, overflow = TextOverflow.Ellipsis)

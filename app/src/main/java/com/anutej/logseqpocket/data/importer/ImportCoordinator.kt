@@ -6,6 +6,7 @@ import android.provider.OpenableColumns
 import com.anutej.logseqpocket.data.repo.SettingsRepository
 import com.anutej.logseqpocket.data.sync.GitHubSourceConfig
 import com.anutej.logseqpocket.data.sync.GitHubSync
+import com.anutej.logseqpocket.data.sync.isGraphExportCandidate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -69,7 +70,7 @@ class ImportCoordinator(
     suspend fun refreshGitHubFilesNow(source: GitHubSourceConfig? = null) {
         val s = source ?: settings.current().githubSource
         github.listJsonFiles(s.owner, s.repo, s.branch, s.folder).onSuccess { files ->
-            settings.setGitHubFiles(if (s.path in files) files else (files + s.path).sorted())
+            settings.setGitHubFiles(if (s.path in files || !isGraphExportCandidate(s.path)) files else (files + s.path).sorted())
         }
     }
 

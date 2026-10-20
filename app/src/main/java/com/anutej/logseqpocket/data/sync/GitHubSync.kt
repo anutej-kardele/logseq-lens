@@ -92,7 +92,7 @@ class GitHubSync(
             (json as JsonArray).mapNotNull { (it as? JsonObject)?.get("name")?.jsonPrimitive?.contentOrNull }
         }
 
-    /** `.json` files directly inside [folder] on [branch] (full paths, sorted). */
+    /** Graph-export `.json` files directly inside [folder] on [branch] (full paths, sorted). */
     suspend fun listJsonFiles(
         owner: String, repo: String, branch: String, folder: String, token: String? = null,
     ): Result<List<String>> {
@@ -102,13 +102,13 @@ class GitHubSync(
                 val o = e as? JsonObject ?: return@mapNotNull null
                 val type = o["type"]?.jsonPrimitive?.contentOrNull
                 val p = o["path"]?.jsonPrimitive?.contentOrNull
-                p?.takeIf { type == "file" && it.endsWith(".json", ignoreCase = true) }
+                p?.takeIf { type == "file" && isGraphExportCandidate(it) }
             }.sorted()
         }
     }
 
     /**
-     * Every `.json` file on [branch] (one recursive tree listing), with `data/mobile/` first — used when only
+     * Every graph-export `.json` file on [branch] (one recursive tree listing), with `data/mobile/` first — used when only
      * a repo link was given.
      */
     suspend fun findJsonFiles(owner: String, repo: String, branch: String, token: String? = null): Result<List<String>> =
@@ -117,7 +117,7 @@ class GitHubSync(
             tree.mapNotNull { e ->
                 val o = e as? JsonObject ?: return@mapNotNull null
                 val p = o["path"]?.jsonPrimitive?.contentOrNull
-                p?.takeIf { o["type"]?.jsonPrimitive?.contentOrNull == "blob" && it.endsWith(".json", ignoreCase = true) }
+                p?.takeIf { o["type"]?.jsonPrimitive?.contentOrNull == "blob" && isGraphExportCandidate(it) }
             }.sortedWith(compareBy({ !it.startsWith(PREFERRED_FOLDER) }, { it }))
         }
 

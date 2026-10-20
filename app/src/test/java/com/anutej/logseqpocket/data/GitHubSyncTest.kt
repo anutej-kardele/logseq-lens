@@ -175,13 +175,15 @@ class GitHubSyncTest {
         server.enqueue(jsonResp("""{"sha":"x","truncated":false,"tree":[
             {"path":"README.md","type":"blob"},
             {"path":"config.json","type":"blob"},
+            {"path":"config.example.json","type":"blob"},
+            {"path":"data/mobile/manifest.json","type":"blob"},
             {"path":"data","type":"tree"},
             {"path":"data/mobile/activity.json","type":"blob"},
             {"path":"data/mobile/demo.JSON","type":"blob"}]}"""))
         val s = sync()
         assertEquals("main", s.defaultBranch("friend", "notes-backup").getOrThrow())
         val files = s.findJsonFiles("friend", "notes-backup", "main").getOrThrow()
-        assertEquals(listOf("data/mobile/activity.json", "data/mobile/demo.JSON", "config.json"), files)
+        assertEquals(listOf("data/mobile/activity.json", "data/mobile/demo.JSON"), files)
         assertEquals("/repos/friend/notes-backup", server.takeRequest().url.encodedPath)
         val tree = server.takeRequest()
         assertEquals("/repos/friend/notes-backup/git/trees/main", tree.url.encodedPath)
@@ -193,7 +195,8 @@ class GitHubSyncTest {
         server.enqueue(jsonResp("""[{"name":"activity.json","path":"data/mobile/activity.json","type":"file"},
             {"name":"old","path":"data/mobile/old","type":"dir"},
             {"name":"notes.txt","path":"data/mobile/notes.txt","type":"file"},
-            {"name":"demo.json","path":"data/mobile/demo.json","type":"file"}]"""))
+            {"name":"demo.json","path":"data/mobile/demo.json","type":"file"},
+            {"name":"manifest.json","path":"data/mobile/manifest.json","type":"file"}]"""))
         val s = sync()
         assertEquals(listOf("main", "dev"), s.listBranches("o", "r").getOrThrow())
         assertEquals(listOf("data/mobile/activity.json", "data/mobile/demo.json"), s.listJsonFiles("o", "r", "main", "data/mobile").getOrThrow())

@@ -98,3 +98,23 @@ private fun repoOnly(owner: String, repo: String) = ParsedGitHubLink(owner, repo
 
 private fun validNames(p: ParsedGitHubLink): Boolean =
     p.owner.matches(Regex("^$NAME$")) && p.repo.matches(Regex("^$NAME$")) && p.repo.isNotEmpty()
+
+/** Repo housekeeping files that are JSON but never a graph export. */
+private val NON_EXPORT_NAMES = setOf(
+    "manifest.json", "config.json", "package.json", "package-lock.json", "tsconfig.json",
+    "composer.json", "renovate.json", ".eslintrc.json",
+)
+
+/**
+ * Whether a `.json` path in the repo can be a graph export worth offering in the File dropdown and the graph
+ * switcher. Excludes the backup repo's own `manifest.json` and `config.example.json`, plus common tooling
+ * files (`*.example.json`, `*.sample.json`, `package.json`, …).
+ */
+fun isGraphExportCandidate(path: String): Boolean {
+    val name = path.substringAfterLast('/').lowercase()
+    if (!name.endsWith(".json")) return false
+    if (name in NON_EXPORT_NAMES) return false
+    if (name.endsWith(".example.json") || name.endsWith(".sample.json") || name.endsWith(".template.json")) return false
+    if (name.startsWith("config.")) return false
+    return true
+}

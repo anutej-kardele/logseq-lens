@@ -3,6 +3,7 @@ package com.anutej.logseqpocket.data
 import com.anutej.logseqpocket.data.sync.DEFAULT_SOURCE
 import com.anutej.logseqpocket.data.sync.GitHubSourceConfig
 import com.anutej.logseqpocket.data.sync.ParsedGitHubLink
+import com.anutej.logseqpocket.data.sync.isGraphExportCandidate
 import com.anutej.logseqpocket.data.sync.parseGitHubLink
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -58,5 +59,14 @@ class GitHubSourceTest {
         assertEquals("data/mobile", DEFAULT_SOURCE.folder)
         assertEquals("activity.json", DEFAULT_SOURCE.fileName)
         assertEquals("", GitHubSourceConfig("o", "r", "main", "a.json").folder)
+    }
+
+    @Test fun onlyGraphExportsAreOffered() {
+        for (ok in listOf("data/mobile/activity.json", "data/mobile/demo.json", "exports/Work Notes.JSON", "a.json"))
+            assertEquals(ok, true, isGraphExportCandidate(ok))
+        for (no in listOf(
+            "data/mobile/manifest.json", "config.example.json", "config.json", "data/config.local.json",
+            "package.json", "sub/package-lock.json", "x.sample.json", "readme.md",
+        )) assertEquals(no, false, isGraphExportCandidate(no))
     }
 }

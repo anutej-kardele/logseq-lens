@@ -14,7 +14,7 @@ sealed class ImportError(val userMessage: String) {
             "(${supported.joinToString()}). Update this app."
         else "schemaVersion $found is not supported (expected ${supported.joinToString()})."
     )
-    class Invalid(reason: String) : ImportError("The export failed validation: $reason")
+    class Invalid(reason: String) : ImportError("The export failed validation: ${reason.trimEnd('.')}.")
     class Network(detail: String) : ImportError(detail)
     class Auth(detail: String) : ImportError(detail)
     class Database(detail: String) : ImportError("Saving to the local database failed: $detail")
