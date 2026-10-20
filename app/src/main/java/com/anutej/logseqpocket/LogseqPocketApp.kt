@@ -7,6 +7,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import com.anutej.logseqpocket.ui.scratchpad.FloatingScratchpadActivity
 import com.anutej.logseqpocket.widget.scratchpadIntent
+import kotlinx.coroutines.launch
 
 class LogseqPocketApp : Application() {
     lateinit var container: AppContainer
@@ -15,6 +16,7 @@ class LogseqPocketApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        container.appScope.launch { container.importer.adoptSourceFromDataset() }
         publishShortcuts()
     }
 

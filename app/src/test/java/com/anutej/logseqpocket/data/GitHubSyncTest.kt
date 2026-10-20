@@ -10,7 +10,7 @@ import com.anutej.logseqpocket.data.importer.ImportOrigin
 import com.anutej.logseqpocket.data.importer.ImportOutcome
 import com.anutej.logseqpocket.data.importer.ImportService
 import com.anutej.logseqpocket.data.json.ImportError
-import com.anutej.logseqpocket.data.sync.DEFAULT_SOURCE
+import com.anutej.logseqpocket.data.sync.sourceFromKey
 import com.anutej.logseqpocket.data.sync.GitHubSourceConfig
 import com.anutej.logseqpocket.data.importer.ImportCoordinator
 import com.anutej.logseqpocket.data.repo.SettingsRepository
@@ -40,6 +40,8 @@ private class FakeTokens(initial: String?) : TokenStore {
     override suspend fun clear() { value.value = null }
 }
 
+private val MINE = GitHubSourceConfig("anutej-kardele", "logseq-backup", "master", "data/mobile/activity.json")
+
 @RunWith(AndroidJUnit4::class)
 class GitHubSyncTest {
     private lateinit var server: MockWebServer
@@ -67,15 +69,15 @@ class GitHubSyncTest {
 
     @Test fun downloadsOnlyTheExportWithReadOnlyAuthenticatedGet() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        val r = sync().sync(DEFAULT_SOURCE)
+        val r = sync().sync(MINE)
         assertTrue("got $r", r is ImportOutcome.Imported)
         val req = server.takeRequest()
         assertEquals("GET", req.method)
         assertEquals(
-            "/repos/${DEFAULT_SOURCE.owner}/${DEFAULT_SOURCE.repo}/contents/${DEFAULT_SOURCE.path}",
+            "/repos/${MINE.owner}/${MINE.repo}/contents/${MINE.path}",
             req.url.encodedPath,
         )
-        assertEquals(DEFAULT_SOURCE.branch, req.url.queryParameter("ref"))
+        assertEquals(MINE.branch, req.url.queryParameter("ref"))
         assertEquals("Bearer $token", req.headers["Authorization"])
         assertEquals("application/vnd.github.raw+json", req.headers["Accept"])
         assertNull(req.headers["If-None-Match"])
@@ -86,26 +88,26 @@ class GitHubSyncTest {
 
     @Test fun unchangedRemoteUsesEtagAndSkipsRebuild() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         server.takeRequest()
         server.enqueue(status(304))
-        assertEquals(ImportOutcome.Unchanged, sync().sync(DEFAULT_SOURCE))
+        assertEquals(ImportOutcome.Unchanged, sync().sync(MINE))
         assertEquals("\"v1\"", server.takeRequest().headers["If-None-Match"])
         assertEquals(8, db.notesDao().pageCount())
     }
 
     @Test fun changedRemoteReplacesData() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         server.enqueue(ok(Fixtures.synthetic.replace("\"graph\": \"Synthetic\"", "\"graph\": \"Updated\""), etag = "\"v2\""))
-        assertTrue(sync().sync(DEFAULT_SOURCE) is ImportOutcome.Imported)
+        assertTrue(sync().sync(MINE) is ImportOutcome.Imported)
         assertEquals("Updated", db.notesDao().meta()!!.graph)
         assertEquals("\"v2\"", db.notesDao().meta()!!.etag)
     }
 
     @Test fun authAndAccessErrorsKeepLocalNotes() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         for ((resp, expected) in listOf(
             status(401) to ImportError.Auth::class,
             status(403) to ImportError.Auth::class,
@@ -114,7 +116,7 @@ class GitHubSyncTest {
             status(500) to ImportError.Network::class,
         )) {
             server.enqueue(resp)
-            val r = sync().sync(DEFAULT_SOURCE) as ImportOutcome.Failed
+            val r = sync().sync(MINE) as ImportOutcome.Failed
             assertTrue("got ${r.error}", expected.isInstance(r.error))
             assertEquals(8, db.notesDao().pageCount())
             assertEquals("Synthetic", db.notesDao().meta()!!.graph)
@@ -123,9 +125,9 @@ class GitHubSyncTest {
 
     @Test fun malformedOrTruncatedDownloadKeepsLocalNotes() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         server.enqueue(ok(Fixtures.synthetic.take(500), etag = "\"broken\""))
-        val r = sync().sync(DEFAULT_SOURCE) as ImportOutcome.Failed
+        val r = sync().sync(MINE) as ImportOutcome.Failed
         assertTrue(r.error is ImportError.MalformedJson)
         assertEquals("\"v1\"", db.notesDao().meta()!!.etag)
         assertEquals(30, db.notesDao().blockCount())
@@ -133,15 +135,15 @@ class GitHubSyncTest {
 
     @Test fun networkFailureKeepsLocalNotes() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         server.close()
-        val r = sync().sync(DEFAULT_SOURCE) as ImportOutcome.Failed
+        val r = sync().sync(MINE) as ImportOutcome.Failed
         assertTrue(r.error is ImportError.Network)
         assertEquals(8, db.notesDao().pageCount())
     }
 
     @Test fun missingTokenNeverCallsTheNetwork() = runTest {
-        val r = sync(FakeTokens(null)).sync(DEFAULT_SOURCE) as ImportOutcome.Failed
+        val r = sync(FakeTokens(null)).sync(MINE) as ImportOutcome.Failed
         assertTrue(r.error is ImportError.Auth)
         assertEquals(0, server.requestCount)
     }
@@ -152,7 +154,7 @@ class GitHubSyncTest {
 
     @Test fun customSourceBuildsTheRightUrlAndDoesNotReuseEtags() = runTest {
         server.enqueue(ok(Fixtures.synthetic))
-        sync().sync(DEFAULT_SOURCE)
+        sync().sync(MINE)
         server.takeRequest()
         server.enqueue(ok(Fixtures.synthetic.replace("\"graph\": \"Synthetic\"", "\"graph\": \"Demo\""), etag = "\"d1\""))
         assertTrue(sync().sync(demo) is ImportOutcome.Imported)
@@ -165,7 +167,7 @@ class GitHubSyncTest {
     }
 
     @Test fun invalidSourceNeverCallsTheNetwork() = runTest {
-        val r = sync().sync(DEFAULT_SOURCE.copy(path = "../x.json")) as ImportOutcome.Failed
+        val r = sync().sync(MINE.copy(path = "../x.json")) as ImportOutcome.Failed
         assertTrue(r.error is ImportError.Invalid)
         assertEquals(0, server.requestCount)
     }
@@ -212,8 +214,8 @@ class GitHubSyncTest {
     @Test fun switchingSourceCommitsOnlyAfterSuccess() = runTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val settings = SettingsRepository(context)
-        settings.setGitHubSource(DEFAULT_SOURCE)
-        val coordinator = ImportCoordinator(context, CoroutineScope(Dispatchers.Unconfined), ImportService(db), sync(), settings)
+        settings.setGitHubSource(MINE)
+        val coordinator = ImportCoordinator(context, CoroutineScope(Dispatchers.Unconfined), ImportService(db), sync(), settings, db)
         server.enqueue(ok(Fixtures.synthetic))
         server.enqueue(jsonResp("[]")) // file list refresh
         assertTrue(coordinator.syncGitHubNow() is ImportOutcome.Imported)
@@ -221,7 +223,7 @@ class GitHubSyncTest {
         // A failing switch keeps both the old graph and the old source.
         server.enqueue(status(404))
         assertTrue(coordinator.syncGitHubNow(demo) is ImportOutcome.Failed)
-        assertEquals(DEFAULT_SOURCE, settings.current().githubSource)
+        assertEquals(MINE, settings.current().githubSource)
         assertEquals("Synthetic", db.notesDao().meta()!!.graph)
 
         // A successful switch replaces the graph and makes the new source active.
@@ -231,6 +233,30 @@ class GitHubSyncTest {
         assertEquals(demo, settings.current().githubSource)
         assertEquals("Demo", db.notesDao().meta()!!.graph)
         assertEquals(listOf("exports/demo.json", "exports/other.json"), settings.settings.first().githubFiles)
-        settings.setGitHubSource(DEFAULT_SOURCE) // leave shared prefs clean for other tests
+        settings.setGitHubSource(MINE) // leave shared prefs clean for other tests
+    }
+
+    @Test fun upgradeAdoptsTheSourceOfTheCurrentDataset() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = SettingsRepository(context)
+        settings.clearGitHubSourceForTest()
+        val coordinator = ImportCoordinator(context, CoroutineScope(Dispatchers.Unconfined), ImportService(db), sync(), settings, db)
+        server.enqueue(ok(Fixtures.synthetic))
+        sync().sync(MINE) // dataset labelled with MINE.key, but nothing stored in settings yet
+        assertTrue(!settings.hasStoredGitHubSource())
+        coordinator.adoptSourceFromDataset()
+        assertEquals(MINE, settings.current().githubSource)
+        assertEquals(MINE, sourceFromKey(MINE.key))
+    }
+
+    @Test fun successfulSyncAlwaysPersistsTheSource() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = SettingsRepository(context)
+        val coordinator = ImportCoordinator(context, CoroutineScope(Dispatchers.Unconfined), ImportService(db), sync(), settings, db)
+        server.enqueue(ok(Fixtures.synthetic))
+        server.enqueue(jsonResp("[]"))
+        assertTrue(coordinator.syncGitHubNow(MINE) is ImportOutcome.Imported)
+        assertTrue(settings.hasStoredGitHubSource())
+        assertEquals(MINE, settings.current().githubSource)
     }
 }

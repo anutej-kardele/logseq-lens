@@ -6,6 +6,7 @@ import com.anutej.logseqpocket.data.sync.ParsedGitHubLink
 import com.anutej.logseqpocket.data.sync.isGraphExportCandidate
 import com.anutej.logseqpocket.data.sync.parseGitHubLink
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -50,14 +51,19 @@ class GitHubSourceTest {
     }
 
     @Test fun validation() {
-        assertNull(DEFAULT_SOURCE.validate())
-        assertNotNull(DEFAULT_SOURCE.copy(owner = "bad owner").validate())
-        assertNotNull(DEFAULT_SOURCE.copy(branch = "").validate())
-        assertNotNull(DEFAULT_SOURCE.copy(path = "../secrets.json").validate())
-        assertNotNull(DEFAULT_SOURCE.copy(path = "/data/a.json").validate())
-        assertNotNull(DEFAULT_SOURCE.copy(path = "data/mobile/activity.edn").validate())
-        assertEquals("data/mobile", DEFAULT_SOURCE.folder)
-        assertEquals("activity.json", DEFAULT_SOURCE.fileName)
+        val mine = GitHubSourceConfig("anutej-kardele", "logseq-backup", "master", "data/mobile/activity.json")
+        assertNull(mine.validate())
+        assertNotNull(mine.copy(owner = "bad owner").validate())
+        assertNotNull(mine.copy(branch = "").validate())
+        assertNotNull(mine.copy(path = "../secrets.json").validate())
+        assertNotNull(mine.copy(path = "/data/a.json").validate())
+        assertNotNull(mine.copy(path = "data/mobile/activity.edn").validate())
+        assertEquals("data/mobile", mine.folder)
+        assertEquals("activity.json", mine.fileName)
+        // A fresh install has no repo: the Connect form starts empty.
+        assertFalse(DEFAULT_SOURCE.isConfigured)
+        assertNotNull(DEFAULT_SOURCE.validate())
+        assertEquals("data/mobile/activity.json", DEFAULT_SOURCE.path)
         assertEquals("", GitHubSourceConfig("o", "r", "main", "a.json").folder)
     }
 
@@ -68,5 +74,12 @@ class GitHubSourceTest {
             "data/mobile/manifest.json", "config.example.json", "config.json", "data/config.local.json",
             "package.json", "sub/package-lock.json", "x.sample.json", "readme.md",
         )) assertEquals(no, false, isGraphExportCandidate(no))
+    }
+
+    @Test fun sourceKeyRoundTrips() {
+        val src = GitHubSourceConfig("friend", "notes-backup", "main", "data/mobile/demo.json")
+        assertEquals(src, com.anutej.logseqpocket.data.sync.sourceFromKey(src.key))
+        assertNull(com.anutej.logseqpocket.data.sync.sourceFromKey("GitHub anutej-kardele/logseq-backup@master"))
+        assertNull(com.anutej.logseqpocket.data.sync.sourceFromKey(null))
     }
 }

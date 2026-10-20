@@ -152,7 +152,7 @@ class GitHubSync(
         .header("Authorization", "Bearer $token")
         .header("Accept", if (raw) "application/vnd.github.raw+json" else "application/vnd.github+json")
         .header("X-GitHub-Api-Version", "2022-11-28")
-        .header("User-Agent", "LogseqPocket-Android")
+        .header("User-Agent", "LogseqLens-Android")
         .build()
 
     private fun httpError(resp: Response, repoSlug: String, notFound: String): ImportOutcome.Failed = ImportOutcome.Failed(

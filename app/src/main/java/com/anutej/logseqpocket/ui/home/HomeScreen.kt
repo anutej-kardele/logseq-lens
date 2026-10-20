@@ -127,7 +127,9 @@ fun HomeScreen(
     val pad by padVm.doc.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle(AppSettings())
     var connectDialog by remember { mutableStateOf(false) }
-    val onSync: () -> Unit = { if (hasToken) c.importer.syncGitHub() else connectDialog = true }
+    val onSync: () -> Unit = {
+        if (hasToken && settings.githubSource.isConfigured) c.importer.syncGitHub() else connectDialog = true
+    }
     if (connectDialog) ConnectGitHubDialog(onDismiss = { connectDialog = false })
 
     Scaffold(
@@ -212,7 +214,7 @@ private fun TextLink(text: String, onClick: () -> Unit) {
 
 /**
  * Graph name plus one line of freshness ("Synced from GitHub · 2 h ago"). Counts and details live in
- * Settings; the launcher already says "Logseq".
+ * Settings; the launcher already says "Logseq Lens".
  */
 @Composable
 private fun HomeTitle(
@@ -236,10 +238,11 @@ private fun HomeTitle(
     val source = settings.githubSource
     // Filtered again here so lists cached by older versions drop manifest/config files too.
     val files = settings.githubFiles.filter(::isGraphExportCandidate).ifEmpty { listOf(source.path) }
-    Column(Modifier.clickable(enabled = hasToken) { menu = true; onOpenSwitcher() }) {
+    val canSwitch = hasToken && source.isConfigured
+    Column(Modifier.clickable(enabled = canSwitch) { menu = true; onOpenSwitcher() }) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(meta?.graph ?: "Logseq", maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (hasToken) Icon(Icons.Outlined.ArrowDropDown, "Switch graph")
+            Text(meta?.graph ?: "Logseq Lens", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (canSwitch) Icon(Icons.Outlined.ArrowDropDown, "Switch graph")
         }
         Text(
             status,

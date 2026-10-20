@@ -5,7 +5,9 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.anutej.logseqpocket.data.repo.SettingsRepository
 import com.anutej.logseqpocket.data.sync.GitHubSourceConfig
+import com.anutej.logseqpocket.data.db.PocketDatabase
 import com.anutej.logseqpocket.data.sync.GitHubSync
+import com.anutej.logseqpocket.data.sync.sourceFromKey
 import com.anutej.logseqpocket.data.sync.isGraphExportCandidate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +29,14 @@ class ImportCoordinator(
     private val service: ImportService,
     private val github: GitHubSync,
     private val settings: SettingsRepository,
+    private val db: PocketDatabase,
 ) {
+    private companion object {
+        // Builds before the configurable source labelled GitHub imports like this.
+        const val LEGACY_LABEL = "GitHub anutej-kardele/logseq-backup@master"
+        val LEGACY_SOURCE = GitHubSourceConfig("anutej-kardele", "logseq-backup", "master", "data/mobile/activity.json")
+    }
+
     private val _state = MutableStateFlow<ImportState>(ImportState.Idle)
     val state: StateFlow<ImportState> = _state.asStateFlow()
 
@@ -59,11 +68,25 @@ class ImportCoordinator(
         val source = candidate ?: active
         val outcome = github.sync(source, force)
         if (outcome is ImportOutcome.Imported || outcome is ImportOutcome.Unchanged) {
-            if (source != active) settings.setGitHubSource(source)
+            settings.setGitHubSource(source) // always persisted, so the source survives default changes
             if (draftSource == source) draftSource = null
             refreshGitHubFilesNow(source)
         }
         return outcome
+    }
+
+    /**
+     * Upgrades from builds that kept the source implicit: if none is stored but the current notes came from
+     * GitHub, adopt that source ("owner/repo@branch:path" in the dataset's originLabel).
+     */
+    suspend fun adoptSourceFromDataset() {
+        if (settings.hasStoredGitHubSource()) return
+        val meta = db.notesDao().meta() ?: return
+        if (meta.origin != ImportOrigin.GitHub.name) return
+        val label = meta.originLabel
+        val source = sourceFromKey(label)
+            ?: if (label == LEGACY_LABEL) LEGACY_SOURCE else null
+        source?.let { settings.setGitHubSource(it) }
     }
 
     /** Best-effort refresh of the switcher's file list for [source]'s folder. */

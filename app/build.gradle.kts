@@ -1,5 +1,8 @@
 import java.util.Properties
 
+/** Shown in Settings and used in the release file name (logseq-lens-v<version>-release.apk). */
+val APP_VERSION = "1.0.0"
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -16,7 +19,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = APP_VERSION
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -72,6 +75,10 @@ android {
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
+}
+
+base {
+    archivesName.set("logseq-lens-v$APP_VERSION")
 }
 
 ksp {

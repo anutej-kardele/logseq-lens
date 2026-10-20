@@ -18,6 +18,9 @@ data class GitHubSourceConfig(
     val folder: String get() = path.substringBeforeLast('/', "")
     val fileName: String get() = path.substringAfterLast('/')
 
+    /** True once someone has entered a repo (the fresh-install default has none). */
+    val isConfigured: Boolean get() = owner.isNotBlank() && repo.isNotBlank()
+
     /** A user-facing problem with this source, or null when it's usable. */
     fun validate(): String? = when {
         !NAME_RE.matches(owner) -> "Owner can only contain letters, numbers, '.', '-' and '_'."
@@ -34,13 +37,25 @@ data class GitHubSourceConfig(
     }
 }
 
-/** The original owner's repository; also the starting point for everyone else's form. */
+/**
+ * Starting point for a fresh install: no repo yet (each person connects their own), branch found
+ * automatically, and the path the export pipeline writes to.
+ */
 val DEFAULT_SOURCE = GitHubSourceConfig(
-    owner = "anutej-kardele",
-    repo = "logseq-backup",
-    branch = "master",
+    owner = "",
+    repo = "",
+    branch = "",
     path = "data/mobile/activity.json",
 )
+
+private val KEY_RE = Regex("^([A-Za-z0-9._-]+)/([A-Za-z0-9._-]+)@([^:]+):(.+)$")
+
+/** Inverse of [GitHubSourceConfig.key] ("owner/repo@branch:path"); null if it isn't one. */
+fun sourceFromKey(key: String?): GitHubSourceConfig? {
+    val m = KEY_RE.matchEntire(key?.trim() ?: return null) ?: return null
+    return GitHubSourceConfig(m.groupValues[1], m.groupValues[2], m.groupValues[3], m.groupValues[4])
+        .takeIf { it.validate() == null }
+}
 
 /** What a pasted link told us. Missing parts are discovered from GitHub (default branch, .json files). */
 data class ParsedGitHubLink(

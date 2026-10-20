@@ -185,7 +185,7 @@ fun ConnectGitHubDialog(onDismiss: () -> Unit) {
                     link = ""; folderHint = null
                     owner = DEFAULT_SOURCE.owner; repo = DEFAULT_SOURCE.repo
                     branch = DEFAULT_SOURCE.branch; path = DEFAULT_SOURCE.path
-                }, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) { Text("Reset to default") }
+                }, contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)) { Text("Clear form") }
             }
         },
         confirmButton = {
@@ -245,7 +245,8 @@ fun GitHubSyncSection() {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("GitHub source", style = MaterialTheme.typography.titleSmall)
             Text(
-                "${source.repoSlug} · ${source.branch}\n${source.path}",
+                if (source.isConfigured) "${source.repoSlug} · ${source.branch.ifBlank { "default branch" }}\n${source.path}"
+                else "Not connected yet — tap Connect and paste your backup repo's link.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -258,8 +259,9 @@ fun GitHubSyncSection() {
                 Text("Last synced ${Format.timestamp(it.importedAt)}", style = MaterialTheme.typography.bodySmall)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalButton(onClick = { if (hasToken) c.importer.syncGitHub() else dialog = true }) { Text("Sync now") }
-                OutlinedButton(onClick = { dialog = true }) { Text(if (hasToken) "Edit source" else "Connect") }
+                val ready = hasToken && source.isConfigured
+                FilledTonalButton(onClick = { if (ready) c.importer.syncGitHub() else dialog = true }) { Text("Sync now") }
+                OutlinedButton(onClick = { dialog = true }) { Text(if (ready) "Edit source" else "Connect") }
             }
             if (hasToken) {
                 TextButton(onClick = { confirmRemove = true }) {

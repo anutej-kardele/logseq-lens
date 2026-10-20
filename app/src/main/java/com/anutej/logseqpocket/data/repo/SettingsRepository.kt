@@ -1,6 +1,7 @@
 package com.anutej.logseqpocket.data.repo
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -65,6 +66,12 @@ class SettingsRepository(context: Context, private val onThemeChanged: () -> Uni
         it[GH_BRANCH] = source.branch
         it[GH_PATH] = source.path
     }
+
+    @VisibleForTesting
+    suspend fun clearGitHubSourceForTest() = store.edit { it.remove(GH_OWNER); it.remove(GH_REPO); it.remove(GH_BRANCH); it.remove(GH_PATH) }
+
+    /** Whether a source was ever saved (older builds only saved it after switching). */
+    suspend fun hasStoredGitHubSource(): Boolean = store.data.first()[GH_OWNER] != null
 
     suspend fun setGitHubFiles(files: List<String>) = store.edit { it[GH_FILES] = files.joinToString("\n") }
 

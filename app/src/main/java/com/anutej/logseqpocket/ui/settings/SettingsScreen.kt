@@ -171,7 +171,7 @@ fun SettingsScreen(onBack: () -> Unit) {
             }
             item {
                 Text(
-                    "Logseq (personal reader) ${BuildConfigInfo.versionName} · no analytics, no tracking, no backend.",
+                    "Logseq Lens ${BuildConfigInfo.versionName} · unofficial, not affiliated with Logseq · no analytics, no tracking, no backend.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 16.dp),
