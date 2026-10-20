@@ -1,25 +1,57 @@
-# Private data — never commit real notes or exports
+# ---------------------------------------------------------------------------
+# Private data — never commit real notes, exports or databases
+# ---------------------------------------------------------------------------
 local-data/
 *.edn
 *.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+# (Committed on purpose: app/src/test/resources/fixtures/*.json and docs/demo/*.json are synthetic.)
 
-# Build outputs
+# ---------------------------------------------------------------------------
+# Secrets & signing material
+# ---------------------------------------------------------------------------
+*.jks
+*.keystore
+*.p12
+*.pem
+keystore.properties
+secrets.properties
+.env
+.env.*
+
+# ---------------------------------------------------------------------------
+# Build outputs (APKs are published on GitHub Releases, not committed)
+# ---------------------------------------------------------------------------
 *.apk
 *.aab
+*.idsig
 build/
+/app/release/
+/app/debug/
+/release/
+output-metadata.json
 .gradle/
 .kotlin/
 captures/
 .externalNativeBuild/
 .cxx/
+*.hprof
+*.log
 
-# Machine-specific
+# ---------------------------------------------------------------------------
+# Machine / IDE specific
+# ---------------------------------------------------------------------------
 local.properties
 .idea/
 *.iml
+.vscode/
+*.swp
+*~
 .DS_Store
+Thumbs.db
 
-# Signing material
-*.jks
-*.keystore
-keystore.properties
+# Claude Code local settings (project CLAUDE.md is committed)
+.claude/settings.local.json

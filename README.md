@@ -1,295 +1,101 @@
-# Logseq Pocket
+# Logseq Lens
 
-Shows up on the phone as **Logseq** (with the Logseq mark, recreated from the official `logseq/logseq` icon; this is
-a personal, sideloaded build and must not be published under that name or logo). The in-app header also says “Logseq”.
+Read your **Logseq** notes on Android: offline, read-only, synced from your own private GitHub backup.
+Browse journals and pages, search everything, study your `#Card` flashcards, and jot quick to-dos in a Scratchpad
+with a home-screen widget.
 
-A native, **read-only**, **offline-first** Android companion for the `Activity` Logseq (DB version) graph.
-It reads the JSON export produced by the separate `logseq-backup` project (`data/mobile/activity.json`), stores it in
-a local Room database, and lets you read journals and pages, browse tags and classes, search everything offline,
-and study your existing `#Card` flashcards. It never edits, deletes or pushes anything to Logseq or GitHub.
+> **Unofficial.** Logseq Lens is an independent project and is not affiliated with or endorsed by Logseq.
 
-Kotlin · Jetpack Compose · Material 3 · Room (FTS4) · Navigation Compose · kotlinx.serialization · WorkManager.
-There is no backend, no Firebase, no analytics.
+**[⬇ Download the latest APK](https://github.com/anutej-kardele/logseq-lens/releases/latest)** · Android 8.0+
 
----
+<p align="center">
+  <img src="docs/screenshots/home.png" width="200" alt="Home with the Scratchpad and recent journals">
+  <img src="docs/screenshots/reader.png" width="200" alt="Nested notes with code blocks">
+  <img src="docs/screenshots/flashcards.png" width="200" alt="Flashcard study">
+  <img src="docs/screenshots/scratchpad-typing.png" width="200" alt="Typing in the Scratchpad">
+</p>
 
-## What works (MVP)
+## What it does
 
-| Area | Status |
-|---|---|
-| Manual import of `activity.json` (Storage Access Framework) | ✅ |
-| Validation of `schemaVersion`, structure, UUIDs, dates, depth; atomic replace; failed imports keep the previous notes | ✅ |
-| Home: graph name + sync freshness in the top bar, Scratchpad, shortcuts, recent journals (counts live in Settings) | ✅ |
-| Journals (grouped by month, newest first, readable dates, hide empty days) | ✅ |
-| Pages (alphabetical, text filter, kind filters, hide empty) | ✅ |
-| Note reader: nested outline, collapse/expand, Markdown, code blocks, `[[refs]]`, `#tags`, `((block refs))`, backlinks, selectable text | ✅ |
-| Tags & classes (counts, original names, similar-spelling hints, tag view) | ✅ |
-| Offline full-text search (FTS4 + substring fallback for code), highlight, jump to block | ✅ |
-| Flashcards: dashboard by tag, study mode (flip, prev/next, shuffle, Know / Review again, review-again pass, restart, summary) | ✅ |
-| Local review progress that survives re-imports | ✅ |
-| Settings: dataset info, re-import, clear notes / progress (confirmed), theme, reading size | ✅ |
-| Private GitHub sync (paste-once read-only token, ETag, offline fallback) | ✅ implemented and tested against a local mock server; **not yet run against your real repo** (needs your token on the phone) |
-| Optional background check (WorkManager, off by default) | ✅ (timing is up to Android) |
-| **Scratchpad**: one local note mixing text and checkboxes, on a Home card | ✅ |
-| Scratchpad home-screen widget (tick in place, tap to edit in a floating note, follows app theme) | ✅ |
-| Launcher shortcuts (long-press icon → Scratchpad / New to-do) | ✅ |
+- **Read** journals and pages with their full nested outline, Markdown, code blocks, `[[links]]` and `#tags`.
+- **Search** every note offline.
+- **Study** blocks tagged `#Card` as flashcards, grouped by your other tags (for example `#leetcode`).
+- **Scratchpad**: one local note for thoughts and checklists, editable on Home and from a home-screen widget.
+- **Sync** from your private GitHub repo with a read-only token. Nothing is ever written back.
 
-### Not in this version (future)
-Bookmarks/reading history, search filters by tag/date, a calendar view, rich media attachments, biometric lock,
-a spaced-repetition schedule (Know / Review again is implemented; Logseq's own FSRS state is shown read-only),
-rendering Logseq live queries (deck/query blocks show the query and link to the tag instead).
+## Setup
 
----
+You need a Logseq **DB-version** graph on your computer and a **private** GitHub repo for the export.
 
-## Requirements
+### 1. Export your graph to GitHub
 
-- macOS with Android Studio (tested with 2026.2) and its SDK at `~/Library/Android/sdk`
-- JDK 17+ for Gradle (Android Studio's bundled JBR works; the commands below use JBR 21)
-- An Android 8.0+ device (minSdk 26). Developed against an API 35 emulator.
+Logseq Lens reads a JSON export produced by
+**[logseq-backup-tool](https://github.com/anutej-kardele/logseq-backup-tool)**. In short:
 
-| Setting | Value | Why |
-|---|---|---|
-| `minSdk` | 26 (Android 8.0) | Every Samsung phone in use; native `java.time`; above Room 2.8's minimum (23) |
-| `targetSdk` | 36 | Current platform behaviour (edge-to-edge, predictive back) |
-| `compileSdk` | 37 | Required by current AndroidX releases (core 1.19, Compose 1.12) |
+1. Create a **private** GitHub repo for your backup, for example `logseq-backup`.
+2. Copy the tool's code into it and follow its README to configure your graph.
+3. Run it. It exports your graph to `data/mobile/activity.json` and pushes it to your private repo.
 
-Toolchain: AGP 9.4.1 (built-in Kotlin), Gradle 9.8.2 wrapper, Kotlin 2.4.21, KSP 2.3.12, Compose BOM 2026.09.00,
-Room 2.8.5, kotlinx.serialization 1.12.0, OkHttp 5.5.0, WorkManager 2.12.0. See `gradle/libs.versions.toml`.
+Run the tool again whenever you want the app to see new notes.
 
-## Build
+### 2. Install the app
 
-```bash
-cd ~/Code/Git/logseq-reader-android
-```
+1. Download `logseq-lens-v1.0.0.apk` from **[Releases](https://github.com/anutej-kardele/logseq-lens/releases/latest)**
+   on your phone.
+2. Open it and allow **Install unknown apps** when Android asks.
+   On Samsung, if **Auto Blocker** stops the install, turn it off temporarily under *Settings → Security and
+   privacy → Auto Blocker*.
 
-`local.properties` (git-ignored) must point at the SDK. Android Studio creates it; on the command line:
-
-```bash
-echo "sdk.dir=$HOME/Library/Android/sdk" > local.properties
-```
-
-Then:
-
-```bash
-export JAVA_HOME="$HOME/Library/Java/JavaVirtualMachines/jbr-21.0.8/Contents/Home"
-```
-
-```bash
-./gradlew testDebugUnitTest assembleDebug
-```
-
-The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk` (application id
-`com.anutej.logseqpocket.debug`, so it can sit next to a release build).
-
-Instrumented smoke test (needs a running emulator or connected device):
-
-```bash
-./gradlew connectedDebugAndroidTest
-```
-
-### Release APK
-
-Create a signing key once, outside the repository (never commit it):
-
-```bash
-keytool -genkeypair -v -keystore ~/keys/logseq-pocket.jks -alias pocket -keyalg RSA -keysize 4096 -validity 10000
-```
-
-Create `keystore.properties` in the project root (git-ignored):
-
-```properties
-storeFile=/Users/<you>/keys/logseq-pocket.jks
-storePassword=…
-keyAlias=pocket
-keyPassword=…
-```
-
-```bash
-./gradlew assembleRelease
-```
-
-Output: `app/build/outputs/apk/release/app-release.apk` (minified with R8, ~2 MB). Without `keystore.properties`
-Gradle produces `app-release-unsigned.apk`, which Android will not install. Keep the keystore: updates must be
-signed with the same key.
-
-## Install on a Samsung phone
-
-**USB (recommended)**
-1. Settings → About phone → Software information → tap **Build number** 7 times to enable Developer options.
-2. Settings → Developer options → enable **USB debugging**; connect the phone and accept the prompt.
-3. Install:
-
-```bash
-~/Library/Android/sdk/platform-tools/adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
-
-**Without a cable:** copy the APK to the phone (e.g. Downloads), open it in *My Files*, and allow
-*Install unknown apps* for My Files when prompted. Samsung may run an Auto Blocker check; allow the install or
-temporarily disable Auto Blocker (Settings → Security and privacy).
-
-## Use
-
-1. On the Mac, run `logpush` as usual (this app does not change that pipeline).
-2. **Manual import:** get `data/mobile/activity.json` onto the phone (USB, Quick Share, cloud drive…), then
-   **Settings → Import JSON** (or **Import notes** on the first-run screen). Importing the same file again reports
-   “Already up to date”.
-3. **GitHub sync:** see below. Afterwards use the sync icon on Home or **Settings → Sync now**.
-4. Everything you have imported works offline (verified on the emulator in airplane mode).
-
-### Scratchpad (local only)
-
-A single note for thoughts and to-dos. It's deliberately **not** part of Logseq: it is never synced to GitHub or
-Logseq, and imports or “Clear local notes” never touch it.
-
-- **Size:** on Home and in the floating note it never takes more than ~40% of the screen height (room for the
-  keyboard); longer notes scroll inside it.
-- **Type in place:** the Scratchpad card on Home *is* the note. Tap a checkbox to tick it; tap any line (or
-  the space below) and the keyboard opens right there.
-  - Enter makes a new line, and starts another checkbox when you're on one.
-  - Enter on an empty checkbox line goes back to plain text.
-  - Backspace at the start removes the box or joins the line with the one above.
-  - Typing `[] ` (also `[ ] `, `- [ ] `, `[x] `) at the start of a line turns it into a checkbox.
-  - While typing, a slim row offers a checkbox toggle and a hide-keyboard button. Nothing else takes up space.
-- **Widget:** checkboxes tick in place. Tapping any text or empty space opens the same note floating over the home
-  screen, with the keyboard up and the cursor on the line you tapped; tap outside to close. Android widgets can't
-  host text fields, so this floating note is as close to typing on the widget itself as Android allows.
-  - The expand icon (⤢) opens the full note in the app.
-  - The widget follows the app's Light / Dark / System theme setting.
-- **Shortcuts:** long-press the app icon → **Scratchpad** (full note) or **New Scratchpad item** (floating note
-  with a new checkbox).
-- **Menu (⋮ on the full note):** Clear checked items · Add widget to home screen · Share as text (Markdown
-  `- [ ]` / `- [x]`, so it pastes cleanly into Logseq).
-- **Storage:** `scratchpad.json` in app storage (DataStore, atomic writes). Cloud backup is disabled for privacy,
-  so **uninstalling the app deletes the Scratchpad**; use *Share as text* to keep a copy.
-
-### GitHub sync setup (once) — works with anyone's own repo
-
-The app reads one export file from a private GitHub repo that **you** choose. The default is
-`anutej-kardele/logseq-backup`, branch `master`, `data/mobile/activity.json`; anyone else enters their own.
-Requirements for a friend: a Logseq **DB-version** graph, the same `logseq-backup` export pipeline (so the file is
-the same `schemaVersion 1` JSON), the export pushed to their own private repo, and their own token.
+### 3. Create a read-only GitHub token
 
 1. On GitHub: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-2. Resource owner: your account. Expiration: your choice (e.g. 90 days).
-3. **Repository access → Only select repositories →** your backup repo.
-4. **Permissions → Repository permissions → Contents: Read-only.** (Metadata: Read-only is added automatically.)
-   Grant nothing else.
-5. In the app tap the sync icon on Home (or **Settings → Sync → Connect / Edit source**). The **Connect GitHub**
-   form asks for:
-   - **GitHub link**: paste any of the clone link (`https://github.com/you/logseq-backup.git`, also the SSH form
-     or `you/logseq-backup`), a file link (`…/blob/<branch>/<path>.json`), a folder link (`…/tree/<branch>/<dir>`)
-     or a raw link. Owner/repo/branch/file fill in from it.
-   - **Token**: with only a repo link, the app finds the repo's default branch and the `.json` exports itself
-     (preferring `data/mobile/`). Branch and File also offer dropdowns of what's in the repo.
-   - **Connect & sync** downloads the file. The new source becomes active **only if the download validates**;
-     otherwise your current notes and source stay as they were.
+2. **Repository access → Only select repositories →** choose your backup repo.
+3. **Permissions → Repository permissions → Contents: Read-only.** Leave everything else as is.
+4. Generate the token and copy it (it starts with `github_pat_`).
 
-**Switching graphs.** Tap the graph name at the top of Home to see the `.json` exports in the same folder (for
-example `activity` and `demo`). Picking one downloads it and **replaces** the notes on the phone; one graph is
-stored at a time and switching needs internet. Flashcard progress isn't lost: it's keyed by page + question text,
-so it reappears when you switch back. To change repo or branch, use **Change source…** in the same menu or
-Settings → Sync → Edit source.
+### 4. Connect the app
 
-How the token is handled:
-- It is encrypted with an AES-256-GCM key held in the Android Keystore; only ciphertext is stored, and app data is
-  excluded from Google/Samsung cloud backup and device transfer.
-- It's never logged or shown again. **Replace token** and **Remove token** are in Settings. Revoke it on GitHub
-  when no longer needed.
-- Requests (all `GET`): the export via `/repos/{owner}/{repo}/contents/{path}?ref={branch}` with
-  `Accept: application/vnd.github.raw+json` and `If-None-Match` (a `304` costs nothing and skips the rebuild; ETags
-  are only reused for the same file). To help fill the form and the switcher: `/repos/{o}/{r}` (default branch),
-  `/repos/{o}/{r}/branches`, `/repos/{o}/{r}/contents/{folder}` and `/repos/{o}/{r}/git/trees/{branch}?recursive=1`
-  (file names only). No write endpoints, no clone, no `raw.githubusercontent.com`, no HTTP cache.
-- Expired or revoked tokens (401), missing access (403/404), rate limits, malformed downloads and offline
-  errors all leave the local notes untouched and show a message.
+1. Open **Logseq Lens** and tap the **sync** icon (top right). The **Connect GitHub** form opens.
+2. **GitHub link:** paste your backup repo's link. The clone link is enough, for example
+   `https://github.com/your-name/logseq-backup.git`.
+3. **Token:** paste the token. The branch and the export file (`data/mobile/activity.json`) are filled in
+   automatically.
+4. Tap **Connect & sync**. Your graph appears and works offline from now on.
 
----
+<p align="center">
+  <img src="docs/screenshots/connect.png" width="240" alt="Connect GitHub form">
+</p>
 
-## How the export is interpreted
+**Try it without GitHub:** download [`docs/demo/demo-graph.json`](docs/demo/demo-graph.json) to your phone and use
+**Settings → Import JSON**.
 
-The app was built against the real export format (schemaVersion 1, `source: logseq-cli-edn-build`, Logseq DB
-schema 65.22) and verified locally against the real `activity.json`. All 31 pages, 156 blocks and 21 flashcards
-(16 leetcode, 5 algo-pattern) were read with no warnings and no text lost. The real file is never committed or
-bundled.
+## Everyday use
 
-- **Pages**: `kind` is `journal` (with `journalDay` `YYYYMMDD`) or `tag` (user classes). Journal dates fall back
-  to an ISO title. Unknown kinds are shown as-is.
-- **Blocks** are recursive `children`. They are flattened depth-first into Room (`depth`, `parentUuid`,
-  `siblingIndex`, `preorder`), so a whole page loads in one ordered query and renders as a lazy list.
-  Siblings are sorted by `order` when every sibling has one, otherwise array order is kept.
-- **Tags** are metadata objects `{entityId, uuid, name}` (bare strings are also accepted). Built-in classes such as
-  `Card`/`Cards` have no page in the export, so tags are also collected from block metadata.
-- **References**: the CLI export leaves `references` empty, so `[[Page]]`, `[[uuid]]`, `#tag`, `#[[uuid]]` and
-  `((uuid))` are parsed from the text. Missing targets are shown muted, never invented.
-- **Timestamps** are null throughout the CLI export, so “Recently updated” is hidden. It appears automatically if
-  a future export includes them.
-- **Unknown fields** are ignored; an unsupported `schemaVersion` is rejected with a clear message and the old data
-  is kept.
+- **Sync:** tap the sync icon on Home. The line under the graph name shows when it last synced.
+- **Switch graphs:** tap the graph name on Home to pick another export in the same folder (for example
+  `demo.json`). Switching replaces the notes on the phone; flashcard progress comes back when you switch back.
+- **Scratchpad:** tap any line to type. Type `[] ` at the start of a line for a checkbox. Add the widget from the
+  Scratchpad's ⋮ menu → *Add widget to home screen*.
+- **Flashcards:** *Cards* tab → pick a deck → *Show answer* → *Know* / *Again*. Progress stays on your phone.
 
-### Flashcards
+<p align="center">
+  <img src="docs/screenshots/widget.png" width="360" alt="Scratchpad home-screen widget">
+</p>
 
-Logseq DB marks a card by tagging a block with the built-in `Card` class. The block's content is the **question**;
-its nested child blocks (the whole subtree, in order, including code) are the **answer**. A card with no children
-shows “No answer in the export” and nothing is generated. `{{cloze …}}` is supported (masked on the front).
+## Privacy
 
-Categories come from tag intersections: every other tag on a card block becomes a deck (`Card + leetcode`,
-`Card + algo-pattern`, and any future tag). A card with two category tags is in both decks. Cards with only `Card`
-go to **Other**. Deck titles come from your Logseq `#Cards` query blocks (`(tags [[…]])`) when present, otherwise
-the tag name. Tags are not inherited from parent blocks, matching Logseq's `(tags …)` query.
+- **Read-only:** the app never edits Logseq and never writes to GitHub. It only downloads your export file.
+- Your token is encrypted on the phone with the Android Keystore and never shown again.
+- There are no servers, accounts, analytics or trackers. Your notes stay on your phone (excluded from cloud
+  backup).
 
-**Card identity across re-imports.** CLI-derived block UUIDs encode the tree position (see `logseq-backup`
-`docs/EDN_EXPORT.md`), so inserting a block above a card changes its UUID. Progress is therefore keyed by
-`sha256(page key + normalised question text)`:
-- Identical questions on one page get `#2`, `#3`… suffixes, so distinct cards are never merged.
-- If a key disappears but a new card has the **same UUID and identical answer**, the progress moves over (you edited
-  the question in place).
-- Progress for removed cards is kept as an orphan (it re-attaches if the card returns) and can be pruned in Settings.
-- Limitation: editing a question **and** moving it in the same export resets that card's progress (the safe
-  failure mode).
+## Build from source
 
-Review progress lives in separate Room tables that imports never clear, and is never sent anywhere.
-
-### Possible exporter enhancement (not done — needs your separate approval)
-
-If `@logseq/cli`'s Build EDN export can include block timestamps and original UUIDs, `edn_to_json.py` could pass
-them through and also fill `references`. That is backward-compatible (same keys, populated values). The app
-already uses them when present: “Recently updated” would appear, and card identity could use real UUIDs. Nothing
-is required for flashcards today.
-
----
-
-## Architecture
-
-Single `:app` module, MVVM + repositories, manual dependency injection (`AppContainer`).
-
-```
-data/json      DTOs, streaming parser (SHA-256, size and nesting limits), ImportError
-data/importer  GraphMapper (validate + flatten + tags/refs/cards), ImportService (one transaction), ImportCoordinator
-data/db        Room entities, DAOs, FTS4 index, PocketDatabase (schema JSON in app/schemas)
-data/repo      Notes, Search, Study, Settings (DataStore) repositories
-data/sync      GitHubSync (OkHttp), KeystoreTokenStore, SyncWorker
-data/scratchpad ScratchpadStore (DataStore JSON file, separate from the Room database)
-widget         Glance home-screen widget + tick action
-domain         Markdown/Logseq inline parser, RefIndex, PropertyFormatter, CardIdentity, StudySession, PadEditor
-ui             Compose screens (home, journals, pages, tags, reader, search, cards, settings, sync), theme tokens
+```bash
+git clone https://github.com/anutej-kardele/logseq-lens.git
+cd logseq-lens
+./gradlew assembleDebug
 ```
 
-Security and privacy: the only permissions are `INTERNET` and `ACCESS_NETWORK_STATE`, used solely for sync.
-Traffic is HTTPS-only with system CAs only. `allowBackup=false` plus data-extraction rules keep data out of cloud
-backup. Logs contain counts only, never note text or tokens. The emoji2 font-provider lookup is disabled. HTML in
-notes is shown as text and never executed, and only `http(s)` links open.
-
-## Tests
-
-- 96 JVM tests (`./gradlew testDebugUnitTest`), including Scratchpad editing rules and storage (persistence,
-  concurrent widget/editor writes, corrupt-file fallback), plus: parser, validation, unsupported schema, hierarchy and order,
-  journal dates, tags/refs, Markdown, flashcard classification and answers, card identity, Room import and
-  rollback, FTS search, offline persistence (reopen from disk), progress preservation, study sessions, and GitHub
-  sync (MockWebServer: 200/304/401/403/404/429/500, truncated body, network down, no token).
-- 1 instrumented Compose smoke test (`connectedDebugAndroidTest`): import → journals → reader → study → search.
-- All test data is the synthetic fixture `app/src/test/resources/fixtures/synthetic-activity.json`.
-
-## Repository hygiene
-
-`local-data/`, `local.properties`, APK/AAB files, keystores and `keystore.properties` are git-ignored. Nothing in
-this repository talks to or modifies `~/Code/Git/logseq-backup` or the live graph.
+Requires the Android SDK and JDK 17+. See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for architecture, release
+signing and tests.

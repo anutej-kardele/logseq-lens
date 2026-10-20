@@ -1,0 +1,685 @@
+{
+  "schemaVersion": 1,
+  "source": "logseq-lens-demo",
+  "graph": "Demo",
+  "logseqSchema": {
+    ":major": 65,
+    ":minor": 22
+  },
+  "pageCount": 8,
+  "blockCount": 35,
+  "excludedSystemViewBlocks": 0,
+  "pages": [
+    {
+      "entityId": -5001,
+      "uuid": "a9d185f1-7e01-5b6a-b3cc-c47fa20fbd6f",
+      "name": "leetcode",
+      "title": "leetcode",
+      "kind": "tag",
+      "journalDay": null,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": []
+    },
+    {
+      "entityId": -5002,
+      "uuid": "fcdbdde7-9680-5131-9f9b-b9faf219a209",
+      "name": "algo-pattern",
+      "title": "algo-pattern",
+      "kind": "tag",
+      "journalDay": null,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": []
+    },
+    {
+      "entityId": -5003,
+      "uuid": "a24ffa18-9fc0-5bdd-bd26-8213090639e1",
+      "name": "idea",
+      "title": "idea",
+      "kind": "tag",
+      "journalDay": null,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": []
+    },
+    {
+      "entityId": -5013,
+      "uuid": "14c46588-f2ac-5d24-87f6-85899d6d11e0",
+      "name": "2026-10-19",
+      "title": "2026-10-19",
+      "kind": "journal",
+      "journalDay": 20261019,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": [
+        {
+          "entityId": -5004,
+          "uuid": "a1153c09-696d-5b10-924f-3f3b8e8efe95",
+          "content": "Morning review: 3 cards, all **known** :)",
+          "order": "00000000",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [],
+          "references": [],
+          "children": []
+        },
+        {
+          "entityId": -5009,
+          "uuid": "081d63c3-49bf-595d-b3d0-c957d82ad9f7",
+          "content": "Two Sum - LC 1",
+          "order": "00000001",
+          "collapsed": true,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 949718647157,
+              "uuid": "d56b07ce-6c4b-5b70-aeb3-b10820cdd69c",
+              "name": "leetcode"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5005,
+              "uuid": "ec5e2a9c-60e0-5236-bb66-430b57705d27",
+              "content": "Keep a `HashMap` of value \u2192 index while scanning once",
+              "order": "00000001/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5006,
+              "uuid": "d24db3ae-e1c4-54ca-847e-ed7763160a08",
+              "content": "```java\nMap<Integer, Integer> seen = new HashMap<>();\nfor (int i = 0; i < nums.length; i++) {\n    int need = target - nums[i];\n    if (seen.containsKey(need)) return new int[]{seen.get(need), i};\n    seen.put(nums[i], i);\n}\n```",
+              "order": "00000001/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5008,
+              "uuid": "ea136c7f-d3a4-5dcf-a08b-0517d74047b6",
+              "content": "**Complexity**",
+              "order": "00000001/00000002",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": [
+                {
+                  "entityId": -5007,
+                  "uuid": "9bac2db2-b242-5fba-9986-04e022114dd9",
+                  "content": "O(n) time, O(n) space",
+                  "order": "00000001/00000002/00000000",
+                  "collapsed": false,
+                  "createdAt": null,
+                  "updatedAt": null,
+                  "properties": {},
+                  "tags": [],
+                  "references": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "entityId": -5012,
+          "uuid": "39dd0b0b-960a-5377-a83d-9282393fab10",
+          "content": "Longest Substring Without Repeating Characters - LC 3",
+          "order": "00000002",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 949718647157,
+              "uuid": "d56b07ce-6c4b-5b70-aeb3-b10820cdd69c",
+              "name": "leetcode"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5010,
+              "uuid": "5a0b2e97-6f62-5b54-9a75-08eed66908ba",
+              "content": "Sliding window with a set of characters in the window",
+              "order": "00000002/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5011,
+              "uuid": "ac7dd4dc-f3f0-5942-8762-02acf37dee73",
+              "content": "```python\nleft = 0\nfor right, ch in enumerate(s):\n    while ch in window:\n        window.remove(s[left]); left += 1\n    window.add(ch)\n    best = max(best, right - left + 1)\n```",
+              "order": "00000002/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": -5021,
+      "uuid": "8a215f95-83ce-5e39-a5aa-ad98698cc3d1",
+      "name": "2026-10-18",
+      "title": "2026-10-18",
+      "kind": "journal",
+      "journalDay": 20261018,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": [
+        {
+          "entityId": -5016,
+          "uuid": "124148bd-184e-5ae3-b263-d333095b278a",
+          "content": "Sliding Window",
+          "order": "00000000",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 816243435368,
+              "uuid": "1ad3087f-717e-5ebb-b87e-c693499beec5",
+              "name": "algo-pattern"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5014,
+              "uuid": "5e18bdd3-4fee-5a7b-bb42-c8f1910c09ed",
+              "content": "Grow the right edge; shrink the left edge while the window is invalid.",
+              "order": "00000000/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5015,
+              "uuid": "27b96e34-9cfb-5e0f-a46d-a32c48b0dc4d",
+              "content": "**Use when:** longest/shortest subarray or substring with a condition.",
+              "order": "00000000/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "entityId": -5019,
+          "uuid": "caecf915-244d-5b54-840e-57177f550383",
+          "content": "Prefix Sum",
+          "order": "00000001",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 816243435368,
+              "uuid": "1ad3087f-717e-5ebb-b87e-c693499beec5",
+              "name": "algo-pattern"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5017,
+              "uuid": "4132fd4c-293f-52d8-bc06-b564cb9474c8",
+              "content": "`prefix[i]` = sum of the first i items, so any range sum is `prefix[r] - prefix[l]`.",
+              "order": "00000001/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5018,
+              "uuid": "e886c5ed-42b4-5976-b2b1-4d75b9db24ea",
+              "content": "Pairs well with a frequency map for \"subarray sum equals k\".",
+              "order": "00000001/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "entityId": -5020,
+          "uuid": "7e70d0a7-b8ba-5626-b527-8db7e0bf19ff",
+          "content": "Read [[Study Plan]] again before the weekend",
+          "order": "00000002",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [],
+          "references": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "entityId": -5030,
+      "uuid": "8a2a3388-793a-5010-824d-ea1dc7f92a6e",
+      "name": "2026-10-17",
+      "title": "2026-10-17",
+      "kind": "journal",
+      "journalDay": 20261017,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": [
+        {
+          "entityId": -5023,
+          "uuid": "3f6e3aa5-e957-5ed9-af6e-d89b34ee4e2f",
+          "content": "Valid Anagram - LC 242",
+          "order": "00000000",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 949718647157,
+              "uuid": "d56b07ce-6c4b-5b70-aeb3-b10820cdd69c",
+              "name": "leetcode"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5022,
+              "uuid": "cd4e0ad3-8f96-51b2-b3f5-161ae4ebde08",
+              "content": "Count letters with an `int[26]`; every count must end at zero.",
+              "order": "00000000/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "entityId": -5024,
+          "uuid": "555a342d-9731-5344-b7c2-49448638e070",
+          "content": "#[[28e69347-0dcb-5b46-bb10-1d75a7778d2f]] build a tiny habit tracker",
+          "order": "00000001",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 907748519870,
+              "uuid": "28e69347-0dcb-5b46-bb10-1d75a7778d2f",
+              "name": "idea"
+            }
+          ],
+          "references": [],
+          "children": []
+        },
+        {
+          "entityId": -5029,
+          "uuid": "59135e0a-f7b6-5c32-a98f-736959ee510d",
+          "content": "Two Pointers",
+          "order": "00000002",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [
+            {
+              "entityId": 624598278488,
+              "uuid": "eb7571ba-4745-5332-bf9d-e1a14b505839",
+              "name": "Card"
+            },
+            {
+              "entityId": 816243435368,
+              "uuid": "1ad3087f-717e-5ebb-b87e-c693499beec5",
+              "name": "algo-pattern"
+            }
+          ],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5025,
+              "uuid": "e94d25cc-964b-5828-9dc3-1a0dd64deeb8",
+              "content": "One pointer at each end of a **sorted** array; move the one that improves the answer.",
+              "order": "00000002/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5028,
+              "uuid": "942519af-49b7-5545-8787-5f799a08134e",
+              "content": "Examples:",
+              "order": "00000002/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": [
+                {
+                  "entityId": -5026,
+                  "uuid": "ecdcd9a4-274d-5191-a52c-b78817aceac1",
+                  "content": "Two Sum II",
+                  "order": "00000002/00000001/00000000",
+                  "collapsed": false,
+                  "createdAt": null,
+                  "updatedAt": null,
+                  "properties": {},
+                  "tags": [],
+                  "references": [],
+                  "children": []
+                },
+                {
+                  "entityId": -5027,
+                  "uuid": "01d7541c-bd25-55d9-a646-c0c5c9997e90",
+                  "content": "Container With Most Water",
+                  "order": "00000002/00000001/00000001",
+                  "collapsed": false,
+                  "createdAt": null,
+                  "updatedAt": null,
+                  "properties": {},
+                  "tags": [],
+                  "references": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": -5037,
+      "uuid": "e91dc2c9-32cf-5d37-949b-555af46d7e3c",
+      "name": "2026-10-15",
+      "title": "2026-10-15",
+      "kind": "journal",
+      "journalDay": 20261015,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": [
+        {
+          "entityId": -5034,
+          "uuid": "7b132a99-11fb-53d2-8ad3-8b9d55a40b67",
+          "content": "Weekly plan",
+          "order": "00000000",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5031,
+              "uuid": "1e4ae85c-a5cd-580b-8dd2-ccfacf4da0f1",
+              "content": "Arrays & hashing: 5 problems",
+              "order": "00000000/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5032,
+              "uuid": "055760cb-fec5-55ec-b808-90e1a966ac55",
+              "content": "Sliding window: 3 problems",
+              "order": "00000000/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5033,
+              "uuid": "ef2ca0c5-2e5c-5dd7-82b4-c5a3a3a5935e",
+              "content": "Review flashcards daily",
+              "order": "00000000/00000002",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "entityId": -5035,
+          "uuid": "51470c62-ce76-5e03-96a6-e74c214d2e70",
+          "content": "LeetCode deck",
+          "order": "00000001",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {
+            "logseq.property/query": "(tags [[d56b07ce-6c4b-5b70-aeb3-b10820cdd69c]])"
+          },
+          "tags": [
+            {
+              "entityId": 663165591680,
+              "uuid": "3d517d65-50f4-5870-9cc9-33429dbd9d3c",
+              "name": "Cards"
+            }
+          ],
+          "references": [],
+          "children": []
+        },
+        {
+          "entityId": -5036,
+          "uuid": "e69f574f-56f5-5736-b004-a4eee2debdde",
+          "content": "Algorithm patterns",
+          "order": "00000002",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {
+            "logseq.property/query": "(tags [[1ad3087f-717e-5ebb-b87e-c693499beec5]])"
+          },
+          "tags": [
+            {
+              "entityId": 663165591680,
+              "uuid": "3d517d65-50f4-5870-9cc9-33429dbd9d3c",
+              "name": "Cards"
+            }
+          ],
+          "references": [],
+          "children": []
+        }
+      ]
+    },
+    {
+      "entityId": -5043,
+      "uuid": "9f6b366c-806a-5ee1-abb4-536329ada1a4",
+      "name": "study plan",
+      "title": "Study Plan",
+      "kind": "page",
+      "journalDay": null,
+      "createdAt": null,
+      "updatedAt": null,
+      "tags": [],
+      "properties": {},
+      "references": [],
+      "blocks": [
+        {
+          "entityId": -5040,
+          "uuid": "2e8b754e-8afb-5250-8d11-200a0289f8e6",
+          "content": "Goal: be comfortable with the core interview patterns",
+          "order": "00000000",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5038,
+              "uuid": "d245969a-dea7-5a0d-ac78-480652d52cce",
+              "content": "Arrays & hashing \u2192 two pointers \u2192 sliding window \u2192 stacks",
+              "order": "00000000/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            },
+            {
+              "entityId": -5039,
+              "uuid": "b65f7d7c-12f2-51c2-845d-c9bde7a69c6a",
+              "content": "One new problem a day, review cards every morning",
+              "order": "00000000/00000001",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        },
+        {
+          "entityId": -5042,
+          "uuid": "38463206-9032-5ce2-a1df-038e130d063d",
+          "content": "Useful links",
+          "order": "00000001",
+          "collapsed": false,
+          "createdAt": null,
+          "updatedAt": null,
+          "properties": {},
+          "tags": [],
+          "references": [],
+          "children": [
+            {
+              "entityId": -5041,
+              "uuid": "02748529-f068-5f38-a428-e7d4b21cfd9a",
+              "content": "https://neetcode.io/roadmap",
+              "order": "00000001/00000000",
+              "collapsed": false,
+              "createdAt": null,
+              "updatedAt": null,
+              "properties": {},
+              "tags": [],
+              "references": [],
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

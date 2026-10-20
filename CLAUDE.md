@@ -1,11 +1,13 @@
-# CLAUDE.md — Logseq Pocket conventions
+# CLAUDE.md — Logseq Lens conventions
 
-Native Android, read-only, offline-first reader for the `Activity` Logseq graph export (`activity.json` from the
-separate `logseq-backup` repo). See README.md for features, setup and the data-model notes.
+Logseq Lens: an unofficial, native Android, read-only, offline-first reader for Logseq DB-graph JSON exports
+(`data/mobile/activity.json`, produced by `logseq-backup-tool` into the user's own private repo). README.md covers
+install and setup; docs/DEVELOPMENT.md covers architecture, the data model, signing and tests.
 
 ## Hard rules
-- **Read-only.** Never add code that writes to Logseq, GitHub, or any remote. GitHub access is a single GET of one
-  fixed file (`data/sync/GitHubSync.kt`). Never request write scopes.
+- **Read-only.** Never add code that writes to Logseq, GitHub, or any remote. GitHub access is GET-only
+  (`data/sync/GitHubSync.kt`): the configured export file plus metadata listings. Never request write scopes.
+- **Unofficial branding.** Don't use the official Logseq logo or present the app as Logseq's own.
 - **Never touch** `~/Code/Git/logseq-backup` or `~/logseq/graphs/Activity`. Don't change the exporter from here.
 - **Private data.** `local-data/activity.json` is real notes: never commit it, copy it into resources/assets, upload
   it, or print its content. Committed tests use only `app/src/test/resources/fixtures/synthetic-activity.json`.
