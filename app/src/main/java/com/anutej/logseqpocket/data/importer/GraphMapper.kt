@@ -79,19 +79,30 @@ object GraphMapper {
 
         val warnings = mutableListOf<String>()
         var badJournalDays = 0
+        var untitledPages = 0
 
         // ---- Pages ----
         val pageByUuid = LinkedHashMap<String, PageEntity>()
+        val pageIndexByUuid = HashMap<String, Int>()
         val pageInputs = ArrayList<Pair<PageEntity, PageDto>>(pageDtos.size)
         pageDtos.forEachIndexed { index, p ->
             val uuid = p.uuid?.trim()?.lowercase().orEmpty().ifEmpty { invalid("page #${index + 1} has no uuid") }
-            if (uuid in pageByUuid) invalid("duplicate page uuid at page #${index + 1}")
-            val title = (p.title?.takeIf { it.isNotBlank() } ?: p.name?.takeIf { it.isNotBlank() })
-                ?: invalid("page #${index + 1} has no title or name")
-            val name = p.name?.takeIf { it.isNotBlank() } ?: title
             var journalDay = parseJournalDay(p.journalDay)
             val kind = (p.kind?.trim()?.lowercase()?.ifEmpty { null })
                 ?: if (journalDay != null) "journal" else "page"
+            // A page UUID is one Logseq entity. Two records claiming it (e.g. a class and a separate page) mean
+            // the export split one entity in two; reject rather than guess which record is right.
+            pageIndexByUuid[uuid]?.let { first ->
+                invalid(
+                    "pages #${first + 1} (${pageByUuid.getValue(uuid).kind}) and #${index + 1} ($kind) share uuid $uuid; " +
+                        "the export lists one entity twice"
+                )
+            }
+            // A page with a valid UUID but no title (e.g. a UUID-only page) keeps its content under a
+            // deterministic placeholder title instead of failing the whole import.
+            val title = (p.title?.takeIf { it.isNotBlank() } ?: p.name?.takeIf { it.isNotBlank() })
+                ?: "Untitled page (${uuid.take(8)})".also { untitledPages++ }
+            val name = p.name?.takeIf { it.isNotBlank() } ?: title
             if (kind == "journal" && journalDay == null) {
                 journalDay = parseIsoDay(title)
                 if (journalDay == null) badJournalDays++
@@ -112,9 +123,11 @@ object GraphMapper {
                 nonEmptyBlockCount = 0,
             )
             pageByUuid[uuid] = entity
+            pageIndexByUuid[uuid] = index
             pageInputs += entity to p
         }
         if (badJournalDays > 0) warnings += "$badJournalDays journal page(s) have no readable date"
+        if (untitledPages > 0) warnings += "$untitledPages page(s) had no title and are shown as “Untitled page”"
         val pageUuidByName = HashMap<String, String>()
         for (p in pageByUuid.values) {
             pageUuidByName.putIfAbsent(p.nameLower, p.uuid)
