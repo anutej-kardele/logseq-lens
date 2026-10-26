@@ -43,7 +43,7 @@ Run it again (or use its optional `logpush` command) whenever you want the app t
 
 ### 2. Install the app
 
-1. Download `logseq-lens-v1.0.0.apk` from **[Releases](https://github.com/anutej-kardele/logseq-lens/releases/latest)**
+1. Download the latest `logseq-lens-v<version>.apk` from **[Releases](https://github.com/anutej-kardele/logseq-lens/releases/latest)**
    on your phone.
 2. Open it and allow **Install unknown apps** when Android asks.
    On Samsung, if **Auto Blocker** stops the install, turn it off temporarily under *Settings → Security and

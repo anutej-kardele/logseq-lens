@@ -1,7 +1,7 @@
 import java.util.Properties
 
 /** Shown in Settings and used in the release file name (logseq-lens-v<version>-release.apk). */
-val APP_VERSION = "1.0.0"
+val APP_VERSION = "1.0.1"
 
 plugins {
     alias(libs.plugins.android.application)
@@ -18,7 +18,7 @@ android {
         applicationId = "com.anutej.logseqpocket"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
+        versionCode = 2
         versionName = APP_VERSION
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
